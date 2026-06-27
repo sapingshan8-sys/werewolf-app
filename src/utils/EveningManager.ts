@@ -2,7 +2,6 @@ import {
   ref,
   get,
   update,
-  set,
 } from "firebase/database";
 
 import { db } from "@/lib/firebase";
@@ -11,6 +10,11 @@ import {
   generatePairs,
   VoteResult,
 } from "./PairGenerator";
+
+type EveningPlayerStatus = {
+  alive?: boolean;
+  eveningFinished?: boolean;
+};
 
 export async function createEveningGroups(
   roomCode: string,
@@ -71,10 +75,13 @@ export async function isEveryoneFinished(
     return false;
   }
 
-  const players = snapshot.val();
+  const players = snapshot.val() as Record<
+    string,
+    EveningPlayerStatus
+  >;
 
   return Object.values(players).every(
-    (player: any) =>
+    (player) =>
       player.alive === false ||
       player.eveningFinished === true
   );

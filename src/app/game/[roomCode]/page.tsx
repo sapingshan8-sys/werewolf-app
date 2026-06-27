@@ -48,14 +48,15 @@ export default function GamePage() {
   const roomCode = params.roomCode as string;
 
   const [players, setPlayers] = useState<PlayerWithId[]>([]);
-  const [myPlayerId, setMyPlayerId] = useState("");
+  const [myPlayerId] = useState(() =>
+    typeof window === "undefined"
+      ? ""
+      : localStorage.getItem("playerId") || ""
+  );
   const [hostId, setHostId] = useState("");
   const [phase, setPhase] = useState("");
 
   useEffect(() => {
-    const playerId = localStorage.getItem("playerId") || "";
-    setMyPlayerId(playerId);
-
     // ルーム監視
     const roomRef = ref(db, `rooms/${roomCode}`);
 

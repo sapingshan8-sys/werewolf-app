@@ -18,13 +18,19 @@ export default function Timer({
   onFinish,
   isRunning = true,
 }: Props) {
-  const [seconds, setSeconds] =
-    useState(initialSeconds);
+  const [timer, setTimer] = useState({
+    initialSeconds,
+    seconds: initialSeconds,
+  });
 
-  // initialSeconds が変わったらリセット
-  useEffect(() => {
-    setSeconds(initialSeconds);
-  }, [initialSeconds]);
+  if (timer.initialSeconds !== initialSeconds) {
+    setTimer({
+      initialSeconds,
+      seconds: initialSeconds,
+    });
+  }
+
+  const seconds = timer.seconds;
 
   useEffect(() => {
     if (!isRunning) return;
@@ -35,7 +41,10 @@ export default function Timer({
     }
 
     const timer = setInterval(() => {
-      setSeconds((prev) => prev - 1);
+      setTimer((prev) => ({
+        ...prev,
+        seconds: prev.seconds - 1,
+      }));
     }, 1000);
 
     return () => clearInterval(timer);

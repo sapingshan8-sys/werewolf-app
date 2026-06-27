@@ -1,5 +1,5 @@
-import WinnerPanel from "../result/WinnerPanel";
 "use client";
+
 import Image from "next/image";
 import type { Player } from "@/types/player";
 

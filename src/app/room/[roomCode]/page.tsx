@@ -21,12 +21,13 @@ export default function RoomPage() {
 
   const [players, setPlayers] = useState<PlayerWithId[]>([]);
   const [hostId, setHostId] = useState("");
-  const [myPlayerId, setMyPlayerId] = useState("");
+  const [myPlayerId] = useState(() =>
+    typeof window === "undefined"
+      ? ""
+      : localStorage.getItem("playerId") || ""
+  );
 
   useEffect(() => {
-    const playerId = localStorage.getItem("playerId") || "";
-    setMyPlayerId(playerId);
-
     // ルーム情報監視
     const roomRef = ref(db, `rooms/${roomCode}`);
 

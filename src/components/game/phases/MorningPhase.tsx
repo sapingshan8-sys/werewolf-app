@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 
 import Timer from "../common/Timer";
@@ -40,12 +39,7 @@ export default function MorningPhase({
   doctorResult,
   onFinish,
 }: Props) {
-  const [finished, setFinished] =
-    useState(false);
-
   const finishMorning = () => {
-    setFinished(true);
-
     onFinish?.();
   };
 
