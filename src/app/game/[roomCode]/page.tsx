@@ -6,10 +6,14 @@ import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { ref, onValue, update } from "firebase/database";
 import type { Player } from "@/types/player";
+import VotePhase from "@/components/game/phases/VotePhase";
+import { submitVote } from "@/utils/VoteManager";
 
 type PlayerWithId = Player & {
   id: string;
 };
+
+type VoteMap = Record<string, string>;
 
 const roleNames: Record<string, string> = {
   crew: "乗員",
@@ -55,6 +59,7 @@ export default function GamePage() {
   );
   const [hostId, setHostId] = useState("");
   const [phase, setPhase] = useState("");
+  const [votes, setVotes] = useState<VoteMap>({});
 
   useEffect(() => {
     // ルーム監視
@@ -67,6 +72,7 @@ export default function GamePage() {
 
       setPhase(room.phase ?? "");
       setHostId(room.hostId ?? "");
+      setVotes(room.votes ?? {});
     });
 
     // プレイヤー監視
@@ -114,6 +120,14 @@ export default function GamePage() {
     await update(ref(db, `rooms/${roomCode}`), {
       phase: next,
     });
+  };
+
+  const votePlayer = async (targetId: string) => {
+    await submitVote(
+      roomCode,
+      myPlayerId,
+      targetId
+    );
   };
 
   if (!me) {
@@ -197,17 +211,13 @@ export default function GamePage() {
 
       case "vote":
         return (
-          <>
-            <h2 className="text-2xl font-bold mb-4">
-              投票フェーズ
-            </h2>
-
-            <p className="mb-6">
-              コールドスリープする人物を選びます。
-            </p>
-
-            {renderPlayerList()}
-          </>
+          <VotePhase
+            players={players}
+            myPlayerId={myPlayerId}
+            currentVoteTargetId={votes[myPlayerId]}
+            submittedCount={Object.keys(votes).length}
+            votePlayer={votePlayer}
+          />
         );
 
       case "sleep":

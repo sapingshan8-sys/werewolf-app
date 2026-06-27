@@ -70,6 +70,14 @@ export function generatePairs(
     const remain =
       orderedPlayers.length - index;
 
+    if (remain === 1) {
+      groups.push([
+        orderedPlayers[index].playerId,
+      ]);
+
+      break;
+    }
+
     // 残り3人なら3人組
     if (remain === 3) {
 

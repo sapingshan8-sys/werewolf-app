@@ -10,14 +10,25 @@ type PlayerWithId = Player & {
 type Props = {
   players: PlayerWithId[];
   myPlayerId: string;
-  votePlayer: (targetId: string) => void;
+  currentVoteTargetId?: string;
+  submittedCount: number;
+  votePlayer: (targetId: string) => Promise<void>;
 };
 
 export default function VotePhase({
   players,
   myPlayerId,
+  currentVoteTargetId,
+  submittedCount,
   votePlayer,
 }: Props) {
+  const alivePlayers = players.filter(
+    (player) => player.alive
+  );
+  const votedTarget = players.find(
+    (player) => player.id === currentVoteTargetId
+  );
+
   return (
     <div>
 
@@ -31,38 +42,52 @@ export default function VotePhase({
 
       <div className="mb-8 rounded-xl border bg-red-50 p-4">
         <p className="font-semibold">
-          🗳 投票
+          投票
         </p>
 
         <p className="mt-2 text-gray-700">
           生存者を1人選択してください。
           自分には投票できません。
         </p>
+
+        <p className="mt-3 text-sm text-gray-600">
+          投票済み: {submittedCount} / {alivePlayers.length}
+        </p>
+
+        {votedTarget && (
+          <p className="mt-3 font-semibold text-red-700">
+            あなたは {votedTarget.name} に投票しました。
+            全員の投票を待っています。
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
 
-        {players
-          .filter((player) => player.alive)
-          .map((player) => {
+        {alivePlayers.map((player) => {
 
             const isMe =
               player.id === myPlayerId;
+            const voted =
+              player.id === currentVoteTargetId;
+            const disabled =
+              isMe || Boolean(currentVoteTargetId);
 
             return (
 
               <button
                 key={player.id}
-                disabled={isMe}
+                disabled={disabled}
                 onClick={() =>
                   votePlayer(player.id)
                 }
                 className={`border rounded-xl p-4 transition
                   ${
-                    isMe
+                    disabled
                       ? "bg-gray-200 cursor-not-allowed"
                       : "hover:bg-red-100"
                   }
+                  ${voted ? "ring-4 ring-red-300" : ""}
                 `}
               >
 
@@ -81,6 +106,12 @@ export default function VotePhase({
                 {isMe && (
                   <p className="mt-2 text-sm text-gray-500">
                     あなた
+                  </p>
+                )}
+
+                {voted && (
+                  <p className="mt-2 text-sm font-semibold text-red-700">
+                    投票済み
                   </p>
                 )}
 
