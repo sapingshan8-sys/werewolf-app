@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { ref, get, push, set } from "firebase/database";
+import { setPlayerSession } from "@/lib/playerSession";
 
 export default function JoinRoomPage() {
   const [roomCode, setRoomCode] = useState("");
@@ -45,14 +46,9 @@ export default function JoinRoomPage() {
       });
 
       // ブラウザ保存
-      localStorage.setItem(
-        "playerId",
+      setPlayerSession(
+        roomCode,
         playerRef.key ?? ""
-      );
-
-      localStorage.setItem(
-        "roomCode",
-        roomCode
       );
 
       alert("入室成功");

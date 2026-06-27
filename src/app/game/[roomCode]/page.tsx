@@ -8,6 +8,7 @@ import { ref, onValue, update } from "firebase/database";
 import type { Player } from "@/types/player";
 import VotePhase from "@/components/game/phases/VotePhase";
 import { submitVote } from "@/utils/VoteManager";
+import { getPlayerSession } from "@/lib/playerSession";
 
 type PlayerWithId = Player & {
   id: string;
@@ -53,13 +54,14 @@ export default function GamePage() {
 
   const [players, setPlayers] = useState<PlayerWithId[]>([]);
   const [myPlayerId] = useState(() =>
-    typeof window === "undefined"
-      ? ""
-      : localStorage.getItem("playerId") || ""
+    getPlayerSession().playerId
   );
   const [hostId, setHostId] = useState("");
   const [phase, setPhase] = useState("");
   const [votes, setVotes] = useState<VoteMap>({});
+  const [voteError, setVoteError] = useState("");
+  const [isVoteSubmitting, setIsVoteSubmitting] =
+    useState(false);
 
   useEffect(() => {
     // ルーム監視
@@ -119,15 +121,35 @@ export default function GamePage() {
 
     await update(ref(db, `rooms/${roomCode}`), {
       phase: next,
+      ...(next === "vote" ? { votes: null } : {}),
     });
   };
 
   const votePlayer = async (targetId: string) => {
-    await submitVote(
-      roomCode,
-      myPlayerId,
-      targetId
-    );
+    if (!myPlayerId) {
+      setVoteError(
+        "プレイヤー情報を取得できませんでした。ルームに入り直してください。"
+      );
+      return;
+    }
+
+    try {
+      setVoteError("");
+      setIsVoteSubmitting(true);
+
+      await submitVote(
+        roomCode,
+        myPlayerId,
+        targetId
+      );
+    } catch (error) {
+      console.error(error);
+      setVoteError(
+        "投票に失敗しました。通信状態を確認してもう一度試してください。"
+      );
+    } finally {
+      setIsVoteSubmitting(false);
+    }
   };
 
   if (!me) {
@@ -215,6 +237,8 @@ export default function GamePage() {
             players={players}
             myPlayerId={myPlayerId}
             currentVoteTargetId={votes[myPlayerId]}
+            errorMessage={voteError}
+            isSubmitting={isVoteSubmitting}
             submittedCount={Object.keys(votes).length}
             votePlayer={votePlayer}
           />

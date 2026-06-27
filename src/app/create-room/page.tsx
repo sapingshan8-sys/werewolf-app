@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { ref, set, push } from "firebase/database";
+import { setPlayerSession } from "@/lib/playerSession";
 
 export default function CreateRoomPage() {
   const [playerName, setPlayerName] = useState("");
@@ -51,8 +52,7 @@ export default function CreateRoomPage() {
       });
 
       // ブラウザ保存
-      localStorage.setItem("roomCode", code);
-      localStorage.setItem("playerId", playerId);
+      setPlayerSession(code, playerId);
 
       setRoomCode(code);
 

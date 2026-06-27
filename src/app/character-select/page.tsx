@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { ref, get, update } from "firebase/database";
+import { getPlayerSession } from "@/lib/playerSession";
 
 const characters = [
   { id: "yuri", name: "ユーリ" },
@@ -32,8 +33,8 @@ export default function CharacterSelectPage() {
 
   useEffect(() => {
     const loadCharacter = async () => {
-      const playerId = localStorage.getItem("playerId");
-      const roomCode = localStorage.getItem("roomCode");
+      const { playerId, roomCode } =
+        getPlayerSession();
 
       if (!playerId || !roomCode) return;
 
@@ -58,8 +59,8 @@ export default function CharacterSelectPage() {
   const selectCharacter = async (
     character: string
   ) => {
-    const playerId = localStorage.getItem("playerId");
-    const roomCode = localStorage.getItem("roomCode");
+    const { playerId, roomCode } =
+      getPlayerSession();
 
     if (!playerId || !roomCode) {
       alert("プレイヤー情報がありません");

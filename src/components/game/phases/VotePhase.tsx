@@ -11,6 +11,8 @@ type Props = {
   players: PlayerWithId[];
   myPlayerId: string;
   currentVoteTargetId?: string;
+  errorMessage?: string;
+  isSubmitting: boolean;
   submittedCount: number;
   votePlayer: (targetId: string) => Promise<void>;
 };
@@ -19,11 +21,13 @@ export default function VotePhase({
   players,
   myPlayerId,
   currentVoteTargetId,
+  errorMessage,
+  isSubmitting,
   submittedCount,
   votePlayer,
 }: Props) {
   const alivePlayers = players.filter(
-    (player) => player.alive
+    (player) => player.alive !== false
   );
   const votedTarget = players.find(
     (player) => player.id === currentVoteTargetId
@@ -60,6 +64,12 @@ export default function VotePhase({
             全員の投票を待っています。
           </p>
         )}
+
+        {errorMessage && (
+          <p className="mt-3 font-semibold text-red-700">
+            {errorMessage}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -71,7 +81,9 @@ export default function VotePhase({
             const voted =
               player.id === currentVoteTargetId;
             const disabled =
-              isMe || Boolean(currentVoteTargetId);
+              isMe ||
+              isSubmitting ||
+              Boolean(currentVoteTargetId);
 
             return (
 

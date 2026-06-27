@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase";
 import { ref, onValue, update } from "firebase/database";
 import { getRoles } from "@/lib/roles";
 import { shuffle } from "@/lib/shuffle";
+import { getPlayerSession } from "@/lib/playerSession";
 import type { Player } from "@/types/player";
 
 type PlayerWithId = Player & {
@@ -22,9 +23,7 @@ export default function RoomPage() {
   const [players, setPlayers] = useState<PlayerWithId[]>([]);
   const [hostId, setHostId] = useState("");
   const [myPlayerId] = useState(() =>
-    typeof window === "undefined"
-      ? ""
-      : localStorage.getItem("playerId") || ""
+    getPlayerSession().playerId
   );
 
   useEffect(() => {
