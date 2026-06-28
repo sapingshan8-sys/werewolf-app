@@ -120,6 +120,7 @@ export async function executeNight(
       isGnosia: boolean;
     }
   > = {};
+  const bugKilledIds: string[] = [];
 
   //------------------------------------------------
   // 守護対象
@@ -152,6 +153,13 @@ export async function executeNight(
           isGnosia:
             target?.role === "gnosia",
         };
+
+        if (
+          target?.role === "bug" &&
+          !bugKilledIds.includes(target.id)
+        ) {
+          bugKilledIds.push(target.id);
+        }
 
         break;
       }
@@ -205,6 +213,14 @@ export async function executeNight(
       ? attackTarget
       : null;
 
+  const updates: Record<string, unknown> = {};
+
+  bugKilledIds.forEach((bugPlayerId) => {
+    updates[
+      `rooms/${roomCode}/players/${bugPlayerId}/alive`
+    ] = false;
+  });
+
   //------------------------------------------------
   // 能力結果保存
   //------------------------------------------------
@@ -218,17 +234,21 @@ export async function executeNight(
       }
     : null;
 
-  await update(
-    ref(db, `rooms/${roomCode}`),
-    {
-      engineerResults,
-      doctorResults,
-      protectedSuccess:
-        Boolean(attackTarget) &&
-        attackTarget === protectedId,
-      attackedPlayerId,
-    }
-  );
+  updates[`rooms/${roomCode}/engineerResults`] =
+    engineerResults;
+  updates[`rooms/${roomCode}/doctorResults`] =
+    doctorResults;
+  updates[`rooms/${roomCode}/protectedSuccess`] =
+    Boolean(attackTarget) &&
+    attackTarget === protectedId;
+  updates[`rooms/${roomCode}/attackedPlayerId`] =
+    attackedPlayerId;
+  updates[`rooms/${roomCode}/bugKilled`] =
+    bugKilledIds.length > 0;
+  updates[`rooms/${roomCode}/bugKilledIds`] =
+    bugKilledIds;
+
+  await update(ref(db), updates);
 
   //------------------------------------------------
   // 夜行動リセット

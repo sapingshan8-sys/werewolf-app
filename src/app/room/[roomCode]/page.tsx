@@ -172,6 +172,8 @@ export default function RoomPage() {
         lastEliminatedPlayerId: null,
         attackedPlayerId: null,
         protectedSuccess: false,
+        bugKilled: false,
+        bugKilledIds: null,
         engineerResults: null,
         doctorResults: null,
       });

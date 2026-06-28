@@ -93,6 +93,8 @@ export default function GamePage() {
     useState("");
   const [protectedSuccess, setProtectedSuccess] =
     useState(false);
+  const [bugKilled, setBugKilled] =
+    useState(false);
   const [engineerResults, setEngineerResults] =
     useState<EngineerResultMap>({});
   const [doctorResults, setDoctorResults] =
@@ -121,6 +123,7 @@ export default function GamePage() {
       setProtectedSuccess(
         room.protectedSuccess ?? false
       );
+      setBugKilled(room.bugKilled ?? false);
       setEngineerResults(room.engineerResults ?? {});
       setDoctorResults(room.doctorResults ?? null);
     });
@@ -516,6 +519,7 @@ export default function GamePage() {
                 : undefined
             }
             protectedSuccess={protectedSuccess}
+            bugKilled={bugKilled}
             engineerResult={
               me.role === "engineer" &&
               myEngineerResult &&
