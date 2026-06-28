@@ -177,7 +177,7 @@ async function finishVote(
     },
     [`rooms/${roomCode}/votes`]: null,
     [`rooms/${roomCode}/eveningChats`]: null,
-    [`rooms/${roomCode}/phase`]: "evening",
+    [`rooms/${roomCode}/phase`]: "sleep",
   });
 
   await createEveningGroups(roomCode, voteResults);

@@ -58,6 +58,8 @@ export default function GamePage() {
   );
   const [hostId, setHostId] = useState("");
   const [phase, setPhase] = useState("");
+  const [lastEliminatedPlayerId, setLastEliminatedPlayerId] =
+    useState("");
   const [votes, setVotes] = useState<VoteMap>({});
   const [voteError, setVoteError] = useState("");
   const [isVoteSubmitting, setIsVoteSubmitting] =
@@ -74,6 +76,9 @@ export default function GamePage() {
 
       setPhase(room.phase ?? "");
       setHostId(room.hostId ?? "");
+      setLastEliminatedPlayerId(
+        room.lastEliminatedPlayerId ?? ""
+      );
       setVotes(room.votes ?? {});
     });
 
@@ -107,6 +112,10 @@ export default function GamePage() {
   const me = players.find(
     (player) => player.id === myPlayerId
   );
+  const lastEliminatedPlayer = players.find(
+    (player) => player.id === lastEliminatedPlayerId
+  );
+  const isSpectator = me?.alive === false;
 
   const nextPhase = async () => {
     const currentIndex = phaseOrder.indexOf(phase);
@@ -160,7 +169,7 @@ export default function GamePage() {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {players
-          .filter((player) => player.alive)
+          .filter((player) => player.alive !== false)
           .map((player) => (
             <div
               key={player.id}
@@ -246,14 +255,62 @@ export default function GamePage() {
 
       case "sleep":
         return (
-          <div className="text-center py-20">
+          <div className="py-16">
             <h2 className="text-4xl font-bold">
               コールドスリープ
             </h2>
 
-            <p className="mt-6 text-xl">
-              投票結果を集計しています...
+            <p className="mt-6 text-xl text-gray-700">
+              全員の投票が終了しました。
             </p>
+
+            <div className="mt-10 rounded-xl border bg-gray-50 p-6">
+              <h3 className="text-2xl font-bold mb-5">
+                本日のコールドスリープ
+              </h3>
+
+              {lastEliminatedPlayer ? (
+                <div className="flex flex-col items-center text-center">
+                  <Image
+                    src={
+                      lastEliminatedPlayer.character
+                        ? `/characters/${lastEliminatedPlayer.character}.png`
+                        : "/characters/question.png"
+                    }
+                    alt={
+                      lastEliminatedPlayer.character ??
+                      "未選択"
+                    }
+                    width={180}
+                    height={180}
+                    className="rounded-xl"
+                  />
+
+                  <p className="mt-4 text-3xl font-bold">
+                    {lastEliminatedPlayer.name}
+                  </p>
+
+                  <p className="mt-3 text-lg font-semibold text-red-600">
+                    コールドスリープとなりました
+                  </p>
+                </div>
+              ) : (
+                <p className="text-gray-600">
+                  コールドスリープ対象を読み込み中です。
+                </p>
+              )}
+            </div>
+
+            {myPlayerId === hostId && (
+              <div className="mt-8 text-center">
+                <button
+                  onClick={nextPhase}
+                  className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700"
+                >
+                  夕方会議へ進む
+                </button>
+              </div>
+            )}
           </div>
         );
 
@@ -322,7 +379,22 @@ export default function GamePage() {
         </p>
       </div>
 
-      {myPlayerId === hostId && (
+      {isSpectator && (
+        <div className="mb-8 rounded-xl border border-red-200 bg-red-50 p-5">
+          <h2 className="text-xl font-bold text-red-700">
+            閲覧者モード
+          </h2>
+
+          <p className="mt-2 text-gray-700">
+            あなたはコールドスリープ中です。
+            以降の投票や夜行動には参加せず、進行を閲覧します。
+          </p>
+        </div>
+      )}
+
+      {myPlayerId === hostId &&
+        phase !== "vote" &&
+        phase !== "sleep" && (
         <div className="mb-8">
           <button
             onClick={nextPhase}
