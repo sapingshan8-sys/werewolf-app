@@ -77,10 +77,7 @@ export default function DiscussionPhase({
   );
   const latestMessage =
     messages[messages.length - 1];
-  const speaker =
-    players.find(
-      (player) => player.id === latestMessage?.playerId
-    ) ?? myPlayer;
+  const speakerId = latestMessage?.playerId;
 
   useEffect(() => {
     const messagesRef = ref(
@@ -156,9 +153,9 @@ export default function DiscussionPhase({
   };
 
   return (
-    <div className="relative -mx-8 -my-8 min-h-screen overflow-x-auto overflow-y-hidden bg-[#20363d] px-8 py-8 text-[#2e2c2c]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_48%_34%,rgba(139,219,203,0.45)_0%,rgba(32,54,61,0.26)_28%,rgba(7,12,15,0.78)_72%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(5,8,10,0.9)_0%,rgba(18,38,43,0.62)_22%,rgba(75,134,134,0.42)_58%,rgba(10,16,18,0.76)_100%)]" />
+    <div className="relative -mx-8 -my-8 min-h-screen overflow-x-auto overflow-y-hidden bg-[#d8eff8] px-8 py-8 text-[#2e2c2c]">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(220,246,255,0.96)_0%,rgba(189,227,238,0.9)_45%,rgba(235,239,238,0.96)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.8)_0%,transparent_28%),radial-gradient(circle_at_76%_70%,rgba(113,190,199,0.22)_0%,transparent_34%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.04)_0px,rgba(255,255,255,0.04)_2px,transparent_2px,transparent_7px)]" />
 
       <div className="relative z-10 min-h-[calc(100vh-4rem)] min-w-[72rem]">
@@ -183,19 +180,7 @@ export default function DiscussionPhase({
           onClick={() =>
             setIsRolePanelOpen((current) => !current)
           }
-          className="absolute right-0 top-28 w-56 bg-[#8f8f8f]/90 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_3px_rgba(255,255,255,0.76),5px_5px_0_rgba(0,0,0,0.35)] transition hover:bg-[#777] [clip-path:polygon(12%_0,100%_0,100%_70%,84%_100%,0_94%,0_26%)]"
-        >
-          発言
-          <br />
-          する
-        </button>
-
-        <button
-          type="button"
-          onClick={() =>
-            setIsRolePanelOpen((current) => !current)
-          }
-          className="absolute right-20 top-56 w-56 bg-[#8f8f8f]/78 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_3px_rgba(255,255,255,0.72),5px_5px_0_rgba(0,0,0,0.32)] transition hover:bg-[#777] [clip-path:polygon(12%_0,100%_0,100%_70%,84%_100%,0_94%,0_26%)]"
+          className="absolute right-0 top-28 w-56 bg-[#8f8f8f]/86 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_3px_rgba(255,255,255,0.76),5px_5px_0_rgba(0,0,0,0.32)] transition hover:bg-[#777] [clip-path:polygon(12%_0,100%_0,100%_70%,84%_100%,0_94%,0_26%)]"
         >
           役割を
           <br />
@@ -207,27 +192,12 @@ export default function DiscussionPhase({
           onClick={() =>
             setIsVoteHistoryOpen((current) => !current)
           }
-          className="absolute right-0 top-96 w-52 bg-[#8f8f8f]/78 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_3px_rgba(255,255,255,0.72),5px_5px_0_rgba(0,0,0,0.32)] transition hover:bg-[#777] [clip-path:polygon(12%_0,100%_0,100%_70%,84%_100%,0_94%,0_26%)]"
+          className="absolute right-0 top-64 w-52 bg-[#8f8f8f]/78 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_3px_rgba(255,255,255,0.72),5px_5px_0_rgba(0,0,0,0.32)] transition hover:bg-[#777] [clip-path:polygon(12%_0,100%_0,100%_70%,84%_100%,0_94%,0_26%)]"
         >
           投票
           <br />
           結果
         </button>
-
-        <div className="absolute bottom-36 left-[21rem] h-[44rem] w-[38rem] max-h-[calc(100vh-12rem)] opacity-95">
-          <Image
-            src={
-              speaker.character
-                ? `/characters/${speaker.character}.png`
-                : "/characters/question.png"
-            }
-            alt={speaker.character ?? "未選択"}
-            fill
-            sizes="620px"
-            priority
-            className="object-contain drop-shadow-[0_16px_22px_rgba(0,0,0,0.55)]"
-          />
-        </div>
 
       {voteStage === "runoff" && (
         <div className="absolute left-6 top-28 max-w-xl bg-white/80 p-5 shadow-[0_0_0_3px_rgba(255,255,255,0.78),4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(4%_0,100%_0,96%_100%,0_100%,0_18%)]">
@@ -251,31 +221,6 @@ export default function DiscussionPhase({
           </div>
         </div>
       )}
-
-        <div className="absolute bottom-40 left-10 max-h-44 w-[34rem] overflow-y-auto pr-4">
-          <div className="space-y-3">
-            {messages.length === 0 ? (
-              <p className="text-xl text-white/80">
-                まだメッセージはありません。
-              </p>
-            ) : (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className="max-w-3xl bg-white/78 px-5 py-3 shadow-[0_0_0_3px_rgba(255,255,255,0.68)] [clip-path:polygon(3%_0,100%_0,97%_100%,0_100%,0_22%)]"
-                >
-                  <p className="font-bold text-[#2870a4]">
-                    {message.playerName}
-                  </p>
-
-                  <p className="break-words text-xl">
-                    {message.text}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
 
         {isRolePanelOpen && (
           <div className="absolute right-72 top-36 w-72 bg-white/88 p-5 shadow-[0_0_0_3px_rgba(255,255,255,0.78),5px_5px_0_rgba(0,0,0,0.3)]">
@@ -311,14 +256,14 @@ export default function DiscussionPhase({
           </div>
         )}
 
-        <div className="absolute right-0 bottom-40 grid w-[28rem] grid-cols-2 gap-3">
+        <div className="absolute left-6 right-72 top-28 grid grid-cols-4 gap-3 pr-8">
           {players
             .filter((player) => player.alive !== false)
             .map((player) => (
               <div
                 key={player.id}
                 className={`flex items-center gap-3 p-2 shadow-[0_0_0_3px_rgba(255,255,255,0.7)] [clip-path:polygon(9%_0,100%_0,94%_100%,0_100%,0_26%)] ${
-                  player.id === speaker.id
+                  player.id === speakerId
                     ? "bg-[#88df72]/82"
                     : "bg-white/62"
                 }`}
@@ -348,18 +293,37 @@ export default function DiscussionPhase({
             ))}
         </div>
 
-        <div className="absolute bottom-60 left-8">
+        <div className="absolute bottom-[18.5rem] left-8">
           <div className="bg-[#6cca58]/85 px-8 py-4 text-3xl font-light tracking-[0.12em] text-white shadow-[0_0_0_3px_rgba(190,255,170,0.9),4px_4px_0_rgba(0,0,0,0.3)] [clip-path:polygon(12%_0,100%_0,94%_78%,82%_100%,0_96%,0_24%)]">
-            {speaker.name}
+            チャット
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-4 right-4 border-l-4 border-t-4 border-white/85 bg-white/78 px-12 py-8 shadow-[0_0_0_3px_rgba(255,255,255,0.5)] [clip-path:polygon(3%_0,100%_0,100%_100%,0_100%,0_12%)]">
-          <p className="min-h-24 pr-4 text-3xl leading-relaxed tracking-[0.08em] text-[#3f3d3d]">
-            {latestMessage
-              ? latestMessage.text
-              : "情報が不足しておりますから、印象に過ぎませんが……会議を始めましょう。"}
-          </p>
+        <div className="absolute bottom-0 left-4 right-4 h-80 border-l-4 border-t-4 border-white/85 bg-white/82 px-10 py-8 shadow-[0_0_0_3px_rgba(255,255,255,0.5)] [clip-path:polygon(3%_0,100%_0,100%_100%,0_100%,0_12%)]">
+          <div className="h-44 overflow-y-auto pr-4">
+            {messages.length === 0 ? (
+              <p className="text-2xl leading-relaxed text-[#777]">
+                まだメッセージはありません。
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((chatMessage) => (
+                  <div
+                    key={chatMessage.id}
+                    className="grid grid-cols-[10rem_1fr] gap-4 text-2xl leading-relaxed text-[#3f3d3d]"
+                  >
+                    <p className="truncate font-bold text-[#2870a4]">
+                      {chatMessage.playerName}
+                    </p>
+
+                    <p className="break-words">
+                      {chatMessage.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="absolute bottom-4 right-10 flex w-[min(48rem,54vw)] gap-5">
