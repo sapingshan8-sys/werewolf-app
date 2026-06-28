@@ -153,13 +153,13 @@ export default function DiscussionPhase({
   };
 
   return (
-    <div className="relative -mx-8 -my-8 min-h-screen overflow-x-auto overflow-y-hidden bg-[#d8eff8] px-8 py-8 text-[#2e2c2c]">
+    <div className="relative min-h-screen overflow-x-auto overflow-y-hidden bg-[#d8eff8] px-8 py-8 text-[#2e2c2c]">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(220,246,255,0.96)_0%,rgba(189,227,238,0.9)_45%,rgba(235,239,238,0.96)_100%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.8)_0%,transparent_28%),radial-gradient(circle_at_76%_70%,rgba(113,190,199,0.22)_0%,transparent_34%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.04)_0px,rgba(255,255,255,0.04)_2px,transparent_2px,transparent_7px)]" />
 
       <div className="relative z-10 min-h-[calc(100vh-4rem)] min-w-[72rem]">
-        <div className="absolute left-[-2rem] top-[-1.4rem] bg-white/88 px-16 py-6 pr-24 shadow-[0_0_0_3px_rgba(255,255,255,0.8),4px_4px_0_rgba(0,0,0,0.42)] [clip-path:polygon(0_0,100%_0,100%_70%,84%_100%,0_100%)]">
+        <div className="absolute left-[-2rem] top-[-1.4rem] z-20 bg-white/88 px-16 py-6 pr-24 shadow-[0_0_0_4px_rgba(255,255,255,0.86),4px_4px_0_rgba(0,0,0,0.34)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)]">
           <h2 className="text-4xl font-light tracking-[0.12em]">
             {day}日目
           </h2>
@@ -169,7 +169,7 @@ export default function DiscussionPhase({
           <button
             type="button"
             onClick={onProceed}
-            className="absolute right-0 top-0 w-52 bg-[#8f8f8f]/90 px-7 py-4 text-3xl font-light leading-tight text-white shadow-[0_0_0_3px_rgba(255,255,255,0.76),5px_5px_0_rgba(0,0,0,0.35)] transition hover:bg-[#777] [clip-path:polygon(12%_0,100%_0,100%_70%,84%_100%,0_94%,0_26%)]"
+            className="absolute right-0 top-0 z-30 h-20 w-52 bg-[#8f8f8f]/88 px-7 py-4 text-3xl font-light leading-tight text-white shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.28)] transition hover:bg-[#777] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]"
           >
             次へ
           </button>
@@ -180,7 +180,7 @@ export default function DiscussionPhase({
           onClick={() =>
             setIsRolePanelOpen((current) => !current)
           }
-          className="absolute right-0 top-28 w-56 bg-[#8f8f8f]/86 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_3px_rgba(255,255,255,0.76),5px_5px_0_rgba(0,0,0,0.32)] transition hover:bg-[#777] [clip-path:polygon(12%_0,100%_0,100%_70%,84%_100%,0_94%,0_26%)]"
+          className="absolute right-0 top-28 z-30 h-24 w-56 bg-[#8f8f8f]/86 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.28)] transition hover:bg-[#777] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]"
         >
           役割を
           <br />
@@ -192,38 +192,38 @@ export default function DiscussionPhase({
           onClick={() =>
             setIsVoteHistoryOpen((current) => !current)
           }
-          className="absolute right-0 top-64 w-52 bg-[#8f8f8f]/78 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_3px_rgba(255,255,255,0.72),5px_5px_0_rgba(0,0,0,0.32)] transition hover:bg-[#777] [clip-path:polygon(12%_0,100%_0,100%_70%,84%_100%,0_94%,0_26%)]"
+          className="absolute right-0 top-64 z-30 h-24 w-52 bg-[#8f8f8f]/78 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_4px_rgba(255,255,255,0.78),5px_5px_0_rgba(0,0,0,0.26)] transition hover:bg-[#777] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]"
         >
           投票
           <br />
           結果
         </button>
 
-      {voteStage === "runoff" && (
-        <div className="absolute left-6 top-28 max-w-xl bg-white/80 p-5 shadow-[0_0_0_3px_rgba(255,255,255,0.78),4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(4%_0,100%_0,96%_100%,0_100%,0_18%)]">
-          <h3 className="text-xl font-bold text-red-700">
-            同票による再会議
-          </h3>
+        {voteStage === "runoff" && (
+          <div className="absolute left-6 top-28 z-20 max-w-xl bg-white/82 p-5 shadow-[0_0_0_4px_rgba(255,255,255,0.82),4px_4px_0_rgba(0,0,0,0.2)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_28%)]">
+            <h3 className="text-xl font-bold text-red-700">
+              同票による再会議
+            </h3>
 
-          <p className="mt-2 text-gray-700">
-            次の投票では、前回最多票だった人物の中から投票します。
-          </p>
+            <p className="mt-2 text-gray-700">
+              次の投票では、前回最多票だった人物の中から投票します。
+            </p>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            {runoffCandidates.map((player) => (
-              <span
-                key={player.id}
-                className="rounded-full bg-white px-4 py-2 font-semibold text-red-700"
-              >
-                {player.name}
-              </span>
-            ))}
+            <div className="mt-4 flex flex-wrap gap-3">
+              {runoffCandidates.map((player) => (
+                <span
+                  key={player.id}
+                  className="rounded-full bg-white px-4 py-2 font-semibold text-red-700"
+                >
+                  {player.name}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {isRolePanelOpen && (
-          <div className="absolute right-72 top-36 w-72 bg-white/88 p-5 shadow-[0_0_0_3px_rgba(255,255,255,0.78),5px_5px_0_rgba(0,0,0,0.3)]">
+          <div className="absolute right-72 top-36 z-40 w-72 bg-white/90 p-5 shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.26)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_28%)]">
             <h3 className="mb-4 text-xl font-bold">
               CO
             </h3>
@@ -251,21 +251,21 @@ export default function DiscussionPhase({
         )}
 
         {isVoteHistoryOpen && (
-          <div className="absolute right-72 top-80 max-h-[24rem] w-[34rem] overflow-y-auto bg-white/92 p-5 shadow-[0_0_0_3px_rgba(255,255,255,0.78),5px_5px_0_rgba(0,0,0,0.3)]">
+          <div className="absolute right-72 top-80 z-40 max-h-[22rem] w-[34rem] overflow-y-auto bg-white/92 p-5 shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.24)] [clip-path:polygon(5%_0,100%_0,96%_100%,0_100%,0_14%)]">
             <VoteHistory history={voteHistory} />
           </div>
         )}
 
-        <div className="absolute left-6 right-72 top-28 grid grid-cols-4 gap-3 pr-8">
+        <div className="absolute left-6 right-72 top-28 z-10 grid grid-cols-4 gap-3 pr-8">
           {players
             .filter((player) => player.alive !== false)
             .map((player) => (
               <div
                 key={player.id}
-                className={`flex items-center gap-3 p-2 shadow-[0_0_0_3px_rgba(255,255,255,0.7)] [clip-path:polygon(9%_0,100%_0,94%_100%,0_100%,0_26%)] ${
+                className={`flex h-20 items-center gap-3 overflow-hidden p-2 shadow-[0_0_0_4px_rgba(255,255,255,0.78)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)] ${
                   player.id === speakerId
-                    ? "bg-[#88df72]/82"
-                    : "bg-white/62"
+                    ? "bg-[#b7d6ee]/88"
+                    : "bg-white/76"
                 }`}
               >
                 <Image
@@ -277,7 +277,7 @@ export default function DiscussionPhase({
                   alt={player.character ?? "未選択"}
                   width={56}
                   height={56}
-                  className="rounded-sm"
+                  className="rounded-sm object-cover"
                 />
 
                 <div>
@@ -285,7 +285,7 @@ export default function DiscussionPhase({
                     {player.name}
                   </p>
 
-                  <p className="text-sm text-green-700">
+                  <p className="text-sm font-semibold text-green-700">
                     生存
                   </p>
                 </div>
@@ -293,13 +293,13 @@ export default function DiscussionPhase({
             ))}
         </div>
 
-        <div className="absolute bottom-[18.5rem] left-8">
-          <div className="bg-[#6cca58]/85 px-8 py-4 text-3xl font-light tracking-[0.12em] text-white shadow-[0_0_0_3px_rgba(190,255,170,0.9),4px_4px_0_rgba(0,0,0,0.3)] [clip-path:polygon(12%_0,100%_0,94%_78%,82%_100%,0_96%,0_24%)]">
+        <div className="absolute bottom-[20.3rem] left-8 z-30">
+          <div className="bg-[#6cca58]/88 px-10 py-3 text-3xl font-light tracking-[0.12em] text-white shadow-[0_0_0_4px_rgba(190,255,170,0.9),4px_4px_0_rgba(0,0,0,0.24)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]">
             チャット
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-4 right-4 h-80 border-l-4 border-t-4 border-white/85 bg-white/82 px-10 py-8 shadow-[0_0_0_3px_rgba(255,255,255,0.5)] [clip-path:polygon(3%_0,100%_0,100%_100%,0_100%,0_12%)]">
+        <div className="absolute bottom-0 left-4 right-4 z-20 h-80 bg-white/84 px-10 py-8 shadow-[0_0_0_4px_rgba(255,255,255,0.72),5px_5px_0_rgba(0,0,0,0.18)] [clip-path:polygon(3%_0,100%_0,100%_100%,0_100%,0_12%)]">
           <div className="h-44 overflow-y-auto pr-4">
             {messages.length === 0 ? (
               <p className="text-2xl leading-relaxed text-[#777]">
@@ -326,7 +326,7 @@ export default function DiscussionPhase({
           </div>
         </div>
 
-        <div className="absolute bottom-4 right-10 flex w-[min(48rem,54vw)] gap-5">
+        <div className="absolute bottom-4 right-10 z-30 flex w-[min(48rem,54vw)] gap-5">
           {isSpectator ? (
             <p className="flex-1 border-4 border-black bg-white px-6 py-4 text-2xl text-[#666]">
               閲覧者モードのため発言できません

@@ -71,17 +71,6 @@ const roleNames: Record<string, string> = {
   bug: "バグ",
 };
 
-const phaseNames: Record<string, string> = {
-  roleReveal: "役職確認",
-  discussion: "議論",
-  vote: "投票",
-  sleep: "コールドスリープ",
-  evening: "夕方",
-  night: "夜",
-  morning: "朝",
-  result: "ゲーム終了",
-};
-
 const phaseOrder = [
   "roleReveal",
   "discussion",
@@ -755,23 +744,12 @@ export default function GamePage() {
     }
   };
 
+  if (phase === "discussion") {
+    return renderPhaseContent();
+  }
+
   return (
     <div className="max-w-5xl mx-auto p-8">
-
-      <h1 className="text-3xl font-bold mb-8">
-        ゲーム開始
-      </h1>
-
-      <div className="border rounded-xl p-5 mb-8 bg-gray-50">
-        <h2 className="text-xl font-bold">
-          現在のフェーズ
-        </h2>
-
-        <p className="text-2xl text-red-600 font-bold mt-2">
-          {phaseNames[phase] ?? phase}
-        </p>
-      </div>
-
       {isSpectator && (
         <div className="mb-8 rounded-xl border border-red-200 bg-red-50 p-5">
           <h2 className="text-xl font-bold text-red-700">
