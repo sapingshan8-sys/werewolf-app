@@ -248,7 +248,7 @@ export async function executeNight(
   await update(
     ref(db, `rooms/${roomCode}`),
     {
-      phase: "discussion",
+      phase: "morning",
       day:
         (
           (

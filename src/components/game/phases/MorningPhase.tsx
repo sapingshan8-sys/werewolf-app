@@ -29,6 +29,8 @@ type Props = {
   doctorResult?: DoctorResult;
 
   onFinish?: () => void;
+
+  canProceed?: boolean;
 };
 
 export default function MorningPhase({
@@ -38,6 +40,7 @@ export default function MorningPhase({
   engineerResult,
   doctorResult,
   onFinish,
+  canProceed = false,
 }: Props) {
   const finishMorning = () => {
     onFinish?.();
@@ -47,7 +50,7 @@ export default function MorningPhase({
     <div className="max-w-4xl mx-auto p-6">
 
       <h1 className="text-4xl font-bold text-center mb-8">
-        🌅 朝になりました
+        朝になりました
       </h1>
 
       <Timer
@@ -184,16 +187,22 @@ export default function MorningPhase({
 
       )}
 
-      <div className="flex justify-center mt-10">
+      {canProceed ? (
+        <div className="flex justify-center mt-10">
 
-        <button
-          onClick={finishMorning}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl"
-        >
-          議論へ進む
-        </button>
+          <button
+            onClick={finishMorning}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl"
+          >
+            議論へ進む
+          </button>
 
-      </div>
+        </div>
+      ) : (
+        <p className="mt-10 text-center text-gray-600">
+          ホストが議論フェーズへ進めるまでお待ちください。
+        </p>
+      )}
 
     </div>
   );

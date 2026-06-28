@@ -9,6 +9,7 @@ import type { Player } from "@/types/player";
 import VotePhase from "@/components/game/phases/VotePhase";
 import EveningPhase from "@/components/game/phases/EveningPhase";
 import NightPhase from "@/components/game/phases/NightPhase";
+import MorningPhase from "@/components/game/phases/MorningPhase";
 import { submitVote } from "@/utils/VoteManager";
 import { finishEveningIfReady } from "@/utils/EveningManager";
 import { submitNightAction } from "@/utils/NightManager";
@@ -27,6 +28,17 @@ type NightActionMap = Record<
     finished?: boolean;
   }
 >;
+type EngineerResultMap = Record<
+  string,
+  {
+    targetId: string;
+    isGnosia: boolean;
+  }
+>;
+type DoctorResult = {
+  targetId: string;
+  isHuman: boolean;
+} | null;
 
 const roleNames: Record<string, string> = {
   crew: "乗員",
@@ -46,6 +58,7 @@ const phaseNames: Record<string, string> = {
   sleep: "コールドスリープ",
   evening: "夕方",
   night: "夜",
+  morning: "朝",
   result: "ゲーム終了",
 };
 
@@ -56,6 +69,7 @@ const phaseOrder = [
   "sleep",
   "evening",
   "night",
+  "morning",
   "result",
 ];
 
@@ -75,6 +89,14 @@ export default function GamePage() {
   const [votes, setVotes] = useState<VoteMap>({});
   const [nightActions, setNightActions] =
     useState<NightActionMap>({});
+  const [attackedPlayerId, setAttackedPlayerId] =
+    useState("");
+  const [protectedSuccess, setProtectedSuccess] =
+    useState(false);
+  const [engineerResults, setEngineerResults] =
+    useState<EngineerResultMap>({});
+  const [doctorResults, setDoctorResults] =
+    useState<DoctorResult>(null);
   const [voteError, setVoteError] = useState("");
   const [isVoteSubmitting, setIsVoteSubmitting] =
     useState(false);
@@ -95,6 +117,12 @@ export default function GamePage() {
       );
       setVotes(room.votes ?? {});
       setNightActions(room.nightActions ?? {});
+      setAttackedPlayerId(room.attackedPlayerId ?? "");
+      setProtectedSuccess(
+        room.protectedSuccess ?? false
+      );
+      setEngineerResults(room.engineerResults ?? {});
+      setDoctorResults(room.doctorResults ?? null);
     });
 
     // プレイヤー監視
@@ -129,6 +157,19 @@ export default function GamePage() {
   );
   const lastEliminatedPlayer = players.find(
     (player) => player.id === lastEliminatedPlayerId
+  );
+  const attackedPlayer = players.find(
+    (player) => player.id === attackedPlayerId
+  );
+  const myEngineerResult =
+    engineerResults[myPlayerId];
+  const engineerTarget = players.find(
+    (player) =>
+      player.id === myEngineerResult?.targetId
+  );
+  const doctorTarget = players.find(
+    (player) =>
+      player.id === doctorResults?.targetId
   );
   const isSpectator = me?.alive === false;
   const eveningPartners = players.filter(
@@ -206,6 +247,12 @@ export default function GamePage() {
       me,
       targetId
     );
+  };
+
+  const finishMorning = async () => {
+    await update(ref(db, `rooms/${roomCode}`), {
+      phase: "discussion",
+    });
   };
 
   if (!me) {
@@ -457,6 +504,49 @@ export default function GamePage() {
           />
         );
 
+      case "morning":
+        return (
+          <MorningPhase
+            attackedPlayer={
+              attackedPlayer
+                ? {
+                    name: attackedPlayer.name,
+                    character: attackedPlayer.character,
+                  }
+                : undefined
+            }
+            protectedSuccess={protectedSuccess}
+            engineerResult={
+              me.role === "engineer" &&
+              myEngineerResult &&
+              engineerTarget
+                ? {
+                    targetName: engineerTarget.name,
+                    isGnosia:
+                      myEngineerResult.isGnosia,
+                  }
+                : undefined
+            }
+            doctorResult={
+              me.role === "doctor" &&
+              doctorResults &&
+              doctorTarget
+                ? {
+                    targetName: doctorTarget.name,
+                    isHuman:
+                      doctorResults.isHuman,
+                  }
+                : undefined
+            }
+            onFinish={
+              myPlayerId === hostId
+                ? finishMorning
+                : undefined
+            }
+            canProceed={myPlayerId === hostId}
+          />
+        );
+
       case "result":
         return (
           <div className="text-center py-20">
@@ -513,7 +603,8 @@ export default function GamePage() {
         phase !== "vote" &&
         phase !== "sleep" &&
         phase !== "evening" &&
-        phase !== "night" && (
+        phase !== "night" &&
+        phase !== "morning" && (
         <div className="mb-8">
           <button
             onClick={nextPhase}
