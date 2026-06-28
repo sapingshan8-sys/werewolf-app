@@ -169,15 +169,15 @@ export default function DiscussionPhase({
           <button
             type="button"
             onClick={onProceed}
-            className="group absolute right-0 top-0 z-50 h-24 w-56 p-1 text-white transition hover:translate-x-[-2px]"
+            className="group absolute right-2 top-0 z-50 h-20 w-48 p-1 text-white transition hover:translate-x-[-2px]"
           >
             <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.26)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
             <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
             <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
-            <span className="absolute left-7 top-7 h-8 w-14 border-2 border-white/90 text-base leading-7 text-white/90">
+            <span className="absolute left-6 top-6 h-7 w-12 border-2 border-white/90 text-sm leading-6 text-white/90">
               NEXT
             </span>
-            <span className="relative z-10 block pl-16 pr-4 pt-4 text-3xl font-light leading-tight drop-shadow">
+            <span className="relative z-10 block pl-14 pr-4 pt-4 text-2xl font-light leading-tight drop-shadow">
               次へ
             </span>
           </button>
@@ -188,15 +188,15 @@ export default function DiscussionPhase({
           onClick={() =>
             setIsRolePanelOpen((current) => !current)
           }
-          className="group absolute right-0 top-28 z-50 h-32 w-64 p-1 text-white transition hover:translate-x-[-2px]"
+          className="group absolute right-2 top-24 z-50 h-24 w-52 p-1 text-white transition hover:translate-x-[-2px]"
         >
           <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.26)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
           <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
           <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
-          <span className="absolute left-7 top-20 h-8 w-14 border-2 border-white/90 text-base leading-7 text-white/90">
+          <span className="absolute left-6 top-14 h-7 w-12 border-2 border-white/90 text-sm leading-6 text-white/90">
             CO
           </span>
-          <span className="relative z-10 block pl-20 pr-4 pt-5 text-3xl font-light leading-tight drop-shadow">
+          <span className="relative z-10 block pl-16 pr-3 pt-4 text-2xl font-light leading-tight drop-shadow">
             役割を
             <br />
             明かす
@@ -208,15 +208,15 @@ export default function DiscussionPhase({
           onClick={() =>
             setIsVoteHistoryOpen((current) => !current)
           }
-          className="group absolute right-4 top-72 z-50 h-32 w-64 p-1 text-white transition hover:translate-x-[-2px]"
+          className="group absolute right-2 top-52 z-50 h-24 w-52 p-1 text-white transition hover:translate-x-[-2px]"
         >
           <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.26)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
           <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
           <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
-          <span className="absolute left-7 top-20 h-8 w-14 border-2 border-white/90 text-base leading-7 text-white/90">
+          <span className="absolute left-6 top-14 h-7 w-12 border-2 border-white/90 text-sm leading-6 text-white/90">
             DATA
           </span>
-          <span className="relative z-10 block pl-20 pr-4 pt-5 text-3xl font-light leading-tight drop-shadow">
+          <span className="relative z-10 block pl-16 pr-3 pt-4 text-2xl font-light leading-tight drop-shadow">
             投票
             <br />
             結果
@@ -247,40 +247,52 @@ export default function DiscussionPhase({
         )}
 
         {isRolePanelOpen && (
-          <div className="absolute right-72 top-36 z-40 w-72 bg-white/90 p-5 shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.26)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_28%)]">
-            <h3 className="mb-4 text-xl font-bold">
-              CO
-            </h3>
+          <div className="absolute right-60 top-24 z-40 max-h-72 w-80 overflow-y-auto p-1 text-white">
+            <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_24%)]" />
+            <div className="absolute inset-[5px] bg-[#727681]/82 [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_24%)]" />
+            <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_24%)]" />
 
-            <div className="grid grid-cols-2 gap-3">
-              {claimableRoles.map((role) => (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => claimRole(role)}
-                  disabled={isSpectator || isSending}
-                  className="bg-[#8f8f8f] px-3 py-2 font-semibold text-white transition hover:bg-[#777] disabled:bg-gray-300"
-                >
-                  {roleLabels[role]}
-                </button>
-              ))}
+            <div className="relative z-10 p-5">
+              <h3 className="mb-4 text-xl font-light tracking-[0.16em]">
+                CO
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3">
+                {claimableRoles.map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => claimRole(role)}
+                    disabled={isSpectator || isSending}
+                    className="bg-white/16 px-3 py-2 font-semibold text-white shadow-[0_0_0_2px_rgba(255,255,255,0.72)] transition hover:bg-white/28 disabled:text-white/35 [clip-path:polygon(12%_0,100%_0,92%_100%,0_100%,0_32%)]"
+                  >
+                    {roleLabels[role]}
+                  </button>
+                ))}
+              </div>
+
+              {claimableRoles.length === 0 && (
+                <p className="text-white/82">
+                  COできる役職を読み込み中です。
+                </p>
+              )}
             </div>
-
-            {claimableRoles.length === 0 && (
-              <p className="text-gray-500">
-                COできる役職を読み込み中です。
-              </p>
-            )}
           </div>
         )}
 
         {isVoteHistoryOpen && (
-          <div className="absolute right-72 top-80 z-40 max-h-[22rem] w-[34rem] overflow-y-auto bg-white/92 p-5 shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.24)] [clip-path:polygon(5%_0,100%_0,96%_100%,0_100%,0_14%)]">
-            <VoteHistory history={voteHistory} />
+          <div className="absolute right-60 top-52 z-40 max-h-52 w-[32rem] overflow-y-auto p-1 text-white">
+            <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+            <div className="absolute inset-[5px] bg-[#727681]/84 [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+            <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+
+            <div className="relative z-10 p-5 text-[#f7f7f7] [&_*]:border-white/50 [&_h3]:text-white [&_p]:text-white/90 [&_td]:text-white/92 [&_th]:text-white">
+              <VoteHistory history={voteHistory} />
+            </div>
           </div>
         )}
 
-        <div className="absolute left-6 right-80 top-28 z-10 grid grid-cols-4 gap-3 pr-8">
+        <div className="absolute left-6 right-72 top-28 z-10 grid grid-cols-4 gap-3 pr-8">
           {players
             .filter((player) => player.alive !== false)
             .map((player) => (
