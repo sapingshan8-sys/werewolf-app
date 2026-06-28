@@ -20,6 +20,7 @@ type Props = {
   }[];
   voteHistory: {
     day: number;
+    order?: number;
     votes: {
       voterName: string;
       targetName: string;

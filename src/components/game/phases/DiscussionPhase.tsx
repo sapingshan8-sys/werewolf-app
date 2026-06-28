@@ -32,6 +32,7 @@ type Message = {
 
 type VoteHistoryDay = {
   day: number;
+  order?: number;
   votes: {
     voterName: string;
     targetName: string;
@@ -46,6 +47,8 @@ type Props = {
   isSpectator: boolean;
   roleCounts: RoleCounts;
   voteHistory: VoteHistoryDay[];
+  voteStage?: string;
+  runoffCandidates?: PlayerWithId[];
 };
 
 export default function DiscussionPhase({
@@ -56,6 +59,8 @@ export default function DiscussionPhase({
   isSpectator,
   roleCounts,
   voteHistory,
+  voteStage = "normal",
+  runoffCandidates = [],
 }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState(false);
@@ -136,6 +141,29 @@ export default function DiscussionPhase({
       <p className="mb-6 text-gray-700">
         怪しい人物について話し合いましょう。
       </p>
+
+      {voteStage === "runoff" && (
+        <div className="mb-8 rounded-xl border border-red-200 bg-red-50 p-5">
+          <h3 className="text-xl font-bold text-red-700">
+            同票による再会議
+          </h3>
+
+          <p className="mt-2 text-gray-700">
+            次の投票では、前回最多票だった人物の中から投票します。
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            {runoffCandidates.map((player) => (
+              <span
+                key={player.id}
+                className="rounded-full bg-white px-4 py-2 font-semibold text-red-700"
+              >
+                {player.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mb-8 grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="border rounded-xl p-6">

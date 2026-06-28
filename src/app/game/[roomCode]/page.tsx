@@ -13,7 +13,10 @@ import EveningPhase from "@/components/game/phases/EveningPhase";
 import NightPhase from "@/components/game/phases/NightPhase";
 import MorningPhase from "@/components/game/phases/MorningPhase";
 import ResultPhase from "@/components/game/phases/ResultPhase";
-import { submitVote } from "@/utils/VoteManager";
+import {
+  submitExileDecisionVote,
+  submitVote,
+} from "@/utils/VoteManager";
 import { finishEveningIfReady } from "@/utils/EveningManager";
 import { submitNightAction } from "@/utils/NightManager";
 import { getPlayerSession } from "@/lib/playerSession";
@@ -50,6 +53,7 @@ type GameLogEntry = {
 };
 type VoteHistoryDay = {
   day: number;
+  order?: number;
   votes: {
     voterName: string;
     targetName: string;
@@ -105,7 +109,13 @@ export default function GamePage() {
     useState<RoleCounts>({});
   const [lastEliminatedPlayerId, setLastEliminatedPlayerId] =
     useState("");
+  const [lastEliminatedPlayerIds, setLastEliminatedPlayerIds] =
+    useState<string[]>([]);
   const [votes, setVotes] = useState<VoteMap>({});
+  const [voteStage, setVoteStage] =
+    useState("normal");
+  const [runoffCandidateIds, setRunoffCandidateIds] =
+    useState<string[]>([]);
   const [nightActions, setNightActions] =
     useState<NightActionMap>({});
   const [gnosiaAttackTargetId, setGnosiaAttackTargetId] =
@@ -147,7 +157,14 @@ export default function GamePage() {
       setLastEliminatedPlayerId(
         room.lastEliminatedPlayerId ?? ""
       );
+      setLastEliminatedPlayerIds(
+        room.lastEliminatedPlayerIds ?? []
+      );
       setVotes(room.votes ?? {});
+      setVoteStage(room.voteStage ?? "normal");
+      setRunoffCandidateIds(
+        room.runoffCandidateIds ?? []
+      );
       setNightActions(room.nightActions ?? {});
       setGnosiaAttackTargetId(
         room.gnosiaAttackTargetId ?? ""
@@ -180,7 +197,13 @@ export default function GamePage() {
       ) as VoteHistoryDay[];
 
       setVoteHistory(
-        votes.sort((a, b) => a.day - b.day)
+        votes.sort((a, b) => {
+          if (a.day !== b.day) {
+            return a.day - b.day;
+          }
+
+          return (a.order ?? 0) - (b.order ?? 0);
+        })
       );
     });
 
@@ -217,6 +240,14 @@ export default function GamePage() {
   const lastEliminatedPlayer = players.find(
     (player) => player.id === lastEliminatedPlayerId
   );
+  const lastEliminatedPlayers =
+    lastEliminatedPlayerIds.length > 0
+      ? players.filter((player) =>
+          lastEliminatedPlayerIds.includes(player.id)
+        )
+      : lastEliminatedPlayer
+        ? [lastEliminatedPlayer]
+        : [];
   const attackedPlayer = players.find(
     (player) => player.id === attackedPlayerId
   );
@@ -245,7 +276,11 @@ export default function GamePage() {
       player.alive !== false
   );
   const previousVoteHistory = voteHistory.filter(
-    (history) => history.day < day
+    (history) =>
+      history.day < day || voteStage === "runoff"
+  );
+  const runoffCandidates = players.filter((player) =>
+    runoffCandidateIds.includes(player.id)
   );
   const knownPartners = players.filter(
     (player) =>
@@ -269,7 +304,19 @@ export default function GamePage() {
 
     await update(ref(db, `rooms/${roomCode}`), {
       phase: next,
-      ...(next === "vote" ? { votes: null } : {}),
+      ...(next === "vote"
+        ? {
+            votes: null,
+            voteStage:
+              voteStage === "runoff"
+                ? "runoff"
+                : "normal",
+            runoffCandidateIds:
+              voteStage === "runoff"
+                ? runoffCandidateIds
+                : null,
+          }
+        : {}),
     });
   };
 
@@ -289,6 +336,35 @@ export default function GamePage() {
         roomCode,
         myPlayerId,
         targetId
+      );
+    } catch (error) {
+      console.error(error);
+      setVoteError(
+        "投票に失敗しました。通信状態を確認してもう一度試してください。"
+      );
+    } finally {
+      setIsVoteSubmitting(false);
+    }
+  };
+
+  const voteExileDecision = async (
+    decision: "exileAll" | "noExile"
+  ) => {
+    if (!myPlayerId) {
+      setVoteError(
+        "プレイヤー情報を取得できませんでした。ルームに入り直してください。"
+      );
+      return;
+    }
+
+    try {
+      setVoteError("");
+      setIsVoteSubmitting(true);
+
+      await submitExileDecisionVote(
+        roomCode,
+        myPlayerId,
+        decision
       );
     } catch (error) {
       console.error(error);
@@ -425,6 +501,8 @@ export default function GamePage() {
             isSpectator={isSpectator}
             roleCounts={roleCounts}
             voteHistory={previousVoteHistory}
+            voteStage={voteStage}
+            runoffCandidates={runoffCandidates}
           />
         );
 
@@ -434,10 +512,13 @@ export default function GamePage() {
             players={players}
             myPlayerId={myPlayerId}
             currentVoteTargetId={votes[myPlayerId]}
+            voteStage={voteStage}
+            runoffCandidateIds={runoffCandidateIds}
             errorMessage={voteError}
             isSubmitting={isVoteSubmitting}
             submittedCount={Object.keys(votes).length}
             votePlayer={votePlayer}
+            voteExileDecision={voteExileDecision}
           />
         );
 
@@ -457,34 +538,40 @@ export default function GamePage() {
                 本日のコールドスリープ
               </h3>
 
-              {lastEliminatedPlayer ? (
-                <div className="flex flex-col items-center text-center">
-                  <Image
-                    src={
-                      lastEliminatedPlayer.character
-                        ? `/characters/${lastEliminatedPlayer.character}.png`
-                        : "/characters/question.png"
-                    }
-                    alt={
-                      lastEliminatedPlayer.character ??
-                      "未選択"
-                    }
-                    width={180}
-                    height={180}
-                    className="rounded-xl"
-                  />
+              {lastEliminatedPlayers.length > 0 ? (
+                <div className="grid gap-5 md:grid-cols-2">
+                  {lastEliminatedPlayers.map((player) => (
+                    <div
+                      key={player.id}
+                      className="flex flex-col items-center text-center"
+                    >
+                      <Image
+                        src={
+                          player.character
+                            ? `/characters/${player.character}.png`
+                            : "/characters/question.png"
+                        }
+                        alt={
+                          player.character ?? "未選択"
+                        }
+                        width={180}
+                        height={180}
+                        className="rounded-xl"
+                      />
 
-                  <p className="mt-4 text-3xl font-bold">
-                    {lastEliminatedPlayer.name}
-                  </p>
+                      <p className="mt-4 text-3xl font-bold">
+                        {player.name}
+                      </p>
 
-                  <p className="mt-3 text-lg font-semibold text-red-600">
-                    コールドスリープとなりました
-                  </p>
+                      <p className="mt-3 text-lg font-semibold text-red-600">
+                        コールドスリープとなりました
+                      </p>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <p className="text-gray-600">
-                  コールドスリープ対象を読み込み中です。
+                  本日は誰もコールドスリープしませんでした。
                 </p>
               )}
             </div>

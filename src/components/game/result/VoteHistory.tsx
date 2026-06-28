@@ -7,6 +7,7 @@ type VoteRecord = {
 
 type VoteDay = {
   day: number;
+  order?: number;
   votes: VoteRecord[];
 };
 

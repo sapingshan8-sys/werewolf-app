@@ -16,21 +16,10 @@ type PlayerWithId = Player & {
 };
 
 type VoteMap = Record<string, string>;
-
-function shuffle<T>(items: T[]) {
-  const result = [...items];
-
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-
-    [result[i], result[j]] = [
-      result[j],
-      result[i],
-    ];
-  }
-
-  return result;
-}
+type VoteStage =
+  | "normal"
+  | "runoff"
+  | "exileDecision";
 
 function getAlivePlayers(players: PlayerWithId[]) {
   return players.filter(
@@ -58,6 +47,50 @@ function countVotes(
   return counts;
 }
 
+function getMaxVoteCandidates(
+  players: PlayerWithId[],
+  votes: VoteMap
+) {
+  const voteCounts = countVotes(players, votes);
+  const maxVoteCount = Math.max(
+    ...voteCounts.values()
+  );
+
+  return {
+    voteCounts,
+    maxVoteCount,
+    candidates: players.filter(
+      (player) =>
+        voteCounts.get(player.id) === maxVoteCount
+    ),
+  };
+}
+
+function createVoteHistory(
+  players: PlayerWithId[],
+  votes: VoteMap
+) {
+  return Object.entries(votes).map(
+    ([voterId, targetId]) => ({
+      voterId,
+      voterName:
+        players.find((player) => player.id === voterId)
+          ?.name ?? "不明",
+      targetId,
+      targetName:
+        players.find((player) => player.id === targetId)
+          ?.name ?? targetId,
+    })
+  );
+}
+
+function getTime() {
+  return new Date().toLocaleTimeString("ja-JP", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export async function submitVote(
   roomCode: string,
   voterId: string,
@@ -81,6 +114,15 @@ export async function submitVote(
   }));
 
   const alivePlayers = getAlivePlayers(players);
+  const voteStage: VoteStage =
+    room.voteStage ?? "normal";
+  const runoffCandidateIds: string[] =
+    room.runoffCandidateIds ?? [];
+
+  if (voteStage === "exileDecision") {
+    return;
+  }
+
   const voter = alivePlayers.find(
     (player) => player.id === voterId
   );
@@ -89,6 +131,13 @@ export async function submitVote(
   );
 
   if (!voter || !target || voterId === targetId) {
+    return;
+  }
+
+  if (
+    voteStage === "runoff" &&
+    !runoffCandidateIds.includes(targetId)
+  ) {
     return;
   }
 
@@ -112,13 +161,81 @@ export async function submitVote(
     return;
   }
 
-  await finishVote(roomCode, players, votes);
+  await finishVote(
+    roomCode,
+    players,
+    votes,
+    voteStage
+  );
+}
+
+export async function submitExileDecisionVote(
+  roomCode: string,
+  voterId: string,
+  decision: "exileAll" | "noExile"
+) {
+  const roomSnap = await get(
+    ref(db, `rooms/${roomCode}`)
+  );
+
+  const room = roomSnap.val();
+
+  if (
+    !room ||
+    room.phase !== "vote" ||
+    room.voteStage !== "exileDecision"
+  ) {
+    return;
+  }
+
+  const players: PlayerWithId[] = Object.entries(
+    room.players ?? {}
+  ).map(([id, value]) => ({
+    id,
+    ...(value as Player),
+  }));
+
+  const alivePlayers = getAlivePlayers(players);
+  const voter = alivePlayers.find(
+    (player) => player.id === voterId
+  );
+
+  if (!voter) {
+    return;
+  }
+
+  const existingVotes: VoteMap =
+    room.votes ?? {};
+
+  if (existingVotes[voterId]) {
+    return;
+  }
+
+  const votes = {
+    ...existingVotes,
+    [voterId]: decision,
+  };
+
+  await update(ref(db, `rooms/${roomCode}`), {
+    votes,
+  });
+
+  if (Object.keys(votes).length < alivePlayers.length) {
+    return;
+  }
+
+  await finishExileDecisionVote(
+    roomCode,
+    players,
+    votes
+  );
 }
 
 async function finishVote(
   roomCode: string,
   players: PlayerWithId[],
-  votes: VoteMap
+  votes: VoteMap,
+  voteStage: VoteStage
 ) {
   const roomSnap = await get(
     ref(db, `rooms/${roomCode}`)
@@ -131,19 +248,196 @@ async function finishVote(
   }
 
   const alivePlayers = getAlivePlayers(players);
-  const voteCounts = countVotes(alivePlayers, votes);
-  const maxVoteCount = Math.max(
-    ...voteCounts.values()
+  const {
+    voteCounts,
+    candidates: exileCandidates,
+  } = getMaxVoteCandidates(
+    alivePlayers,
+    votes
   );
-  const exileCandidates = alivePlayers.filter(
-    (player) =>
-      voteCounts.get(player.id) === maxVoteCount
+  const day = room.day ?? 1;
+  const time = getTime();
+  const stageKey =
+    voteStage === "runoff" ? "runoff" : "normal";
+  const voteHistory = createVoteHistory(
+    players,
+    votes
   );
-  const exiledPlayer =
-    shuffle(exileCandidates)[0];
 
+  if (exileCandidates.length > 1) {
+    const candidateIds = exileCandidates.map(
+      (player) => player.id
+    );
+    const candidateNames = exileCandidates
+      .map((player) => player.name)
+      .join("、");
+
+    await update(ref(db), {
+      [`rooms/${roomCode}/votes`]: null,
+      [`rooms/${roomCode}/voteStage`]:
+        voteStage === "normal"
+          ? "runoff"
+          : "exileDecision",
+      [`rooms/${roomCode}/runoffCandidateIds`]:
+        candidateIds,
+      [`rooms/${roomCode}/voteHistory/${day}-${stageKey}`]:
+        {
+          day,
+          order: voteStage === "normal" ? 1 : 2,
+          votes: voteHistory,
+        },
+      [`rooms/${roomCode}/gameLogs/vote-${day}-${stageKey}`]:
+        {
+          id: `vote-${day}-${stageKey}`,
+          day,
+          time,
+          message:
+            voteStage === "normal"
+              ? `${candidateNames} が同票でした。再会議後、最多票の人物だけで再投票します。`
+              : `${candidateNames} が再投票でも同票でした。全員コールドスリープするか投票します。`,
+        },
+      [`rooms/${roomCode}/phase`]:
+        voteStage === "normal"
+          ? "discussion"
+          : "vote",
+    });
+
+    return;
+  }
+
+  await finishWithExiledPlayers(
+    roomCode,
+    room,
+    players,
+    votes,
+    voteCounts,
+    exileCandidates,
+    `${day}-${stageKey}`,
+    voteStage === "runoff"
+      ? "再投票"
+      : "投票"
+  );
+}
+
+async function finishExileDecisionVote(
+  roomCode: string,
+  players: PlayerWithId[],
+  votes: VoteMap
+) {
+  const roomSnap = await get(
+    ref(db, `rooms/${roomCode}`)
+  );
+
+  const room = roomSnap.val();
+
+  if (
+    !room ||
+    room.phase !== "vote" ||
+    room.voteStage !== "exileDecision"
+  ) {
+    return;
+  }
+
+  const alivePlayers = getAlivePlayers(players);
+  const runoffCandidateIds: string[] =
+    room.runoffCandidateIds ?? [];
+  const exileAllCount = Object.values(votes).filter(
+    (value) => value === "exileAll"
+  ).length;
+  const noExileCount = Object.values(votes).filter(
+    (value) => value === "noExile"
+  ).length;
+  const day = room.day ?? 1;
+  const time = getTime();
+  const targetPlayers = alivePlayers.filter((player) =>
+    runoffCandidateIds.includes(player.id)
+  );
+  const voteCounts = countVotes(alivePlayers, {});
+  const decisionHistory = Object.entries(votes).map(
+    ([voterId, decision]) => ({
+      voterId,
+      voterName:
+        players.find((player) => player.id === voterId)
+          ?.name ?? "不明",
+      targetId: decision,
+      targetName:
+        decision === "exileAll"
+          ? "全員コールドスリープ"
+          : "誰もコールドスリープしない",
+    })
+  );
+
+  if (exileAllCount > noExileCount) {
+    await finishWithExiledPlayers(
+      roomCode,
+      room,
+      players,
+      votes,
+      voteCounts,
+      targetPlayers,
+      `${day}-exileDecision`,
+      "コールドスリープ可否投票",
+      decisionHistory
+    );
+
+    return;
+  }
+
+  const voteResults: VoteResult[] =
+    alivePlayers.map((player) => ({
+      playerId: player.id,
+      voteCount: 0,
+    }));
+  const updates: Record<string, unknown> = {
+    [`rooms/${roomCode}/lastEliminatedPlayerId`]:
+      null,
+    [`rooms/${roomCode}/lastEliminatedPlayerIds`]:
+      [],
+    [`rooms/${roomCode}/voteResults`]: voteResults,
+    [`rooms/${roomCode}/voteHistory/${day}-exileDecision`]:
+      {
+        day,
+        order: 3,
+        votes: decisionHistory,
+      },
+    [`rooms/${roomCode}/votes`]: null,
+    [`rooms/${roomCode}/voteStage`]: null,
+    [`rooms/${roomCode}/runoffCandidateIds`]: null,
+    [`rooms/${roomCode}/eveningChats`]: null,
+    [`rooms/${roomCode}/gameLogs/vote-${day}-exileDecision`]:
+      {
+        id: `vote-${day}-exileDecision`,
+        day,
+        time,
+        message:
+          "コールドスリープ可否投票の結果、誰もコールドスリープしませんでした。",
+      },
+    [`rooms/${roomCode}/phase`]: "sleep",
+  };
+
+  await update(ref(db), updates);
+  await createEveningGroups(roomCode, voteResults);
+}
+
+async function finishWithExiledPlayers(
+  roomCode: string,
+  room: {
+    day?: number;
+  },
+  players: PlayerWithId[],
+  votes: VoteMap,
+  voteCounts: Map<string, number>,
+  exiledPlayers: PlayerWithId[],
+  historyKey: string,
+  actionLabel: string,
+  history = createVoteHistory(players, votes)
+) {
+  const alivePlayers = getAlivePlayers(players);
+  const exiledPlayerIds = exiledPlayers.map(
+    (player) => player.id
+  );
   const remainingPlayers = alivePlayers.filter(
-    (player) => player.id !== exiledPlayer.id
+    (player) => !exiledPlayerIds.includes(player.id)
   );
 
   const voteResults: VoteResult[] =
@@ -153,52 +447,47 @@ async function finishVote(
     }));
 
   const day = room.day ?? 1;
-  const time = new Date().toLocaleTimeString(
-    "ja-JP",
-    {
-      hour: "2-digit",
-      minute: "2-digit",
-    }
-  );
-  const voteHistory = Object.entries(votes).map(
-    ([voterId, targetId]) => ({
-      voterId,
-      voterName:
-        players.find((player) => player.id === voterId)
-          ?.name ?? "不明",
-      targetId,
-      targetName:
-        players.find((player) => player.id === targetId)
-          ?.name ?? "不明",
-    })
-  );
+  const time = getTime();
+  const exiledNames = exiledPlayers
+    .map((player) => player.name)
+    .join("、");
 
   const winResult = judgeWin(remainingPlayers);
   const gameEnded = winResult.winner !== null;
   const updates: Record<string, unknown> = {
-    [`rooms/${roomCode}/players/${exiledPlayer.id}/alive`]:
-      false,
-    [`rooms/${roomCode}/players/${exiledPlayer.id}/eliminationReason`]:
-      "coldSleep",
     [`rooms/${roomCode}/lastEliminatedPlayerId`]:
-      exiledPlayer.id,
+      exiledPlayers[0]?.id ?? null,
+    [`rooms/${roomCode}/lastEliminatedPlayerIds`]:
+      exiledPlayerIds,
     [`rooms/${roomCode}/voteResults`]: voteResults,
-    [`rooms/${roomCode}/voteHistory/${day}`]: {
+    [`rooms/${roomCode}/voteHistory/${historyKey}`]: {
       day,
-      votes: voteHistory,
+      order: actionLabel === "再投票" ? 2 : 1,
+      votes: history,
     },
     [`rooms/${roomCode}/votes`]: null,
+    [`rooms/${roomCode}/voteStage`]: null,
+    [`rooms/${roomCode}/runoffCandidateIds`]: null,
     [`rooms/${roomCode}/eveningChats`]: null,
-    [`rooms/${roomCode}/gameLogs/vote-${day}`]: {
-      id: `vote-${day}`,
+    [`rooms/${roomCode}/gameLogs/vote-${historyKey}`]: {
+      id: `vote-${historyKey}`,
       day,
       time,
-      message: `${exiledPlayer.name} がコールドスリープになりました。`,
+      message: `${actionLabel}の結果、${exiledNames} がコールドスリープになりました。`,
     },
     [`rooms/${roomCode}/phase`]: gameEnded
       ? "result"
       : "sleep",
   };
+
+  exiledPlayers.forEach((player) => {
+    updates[
+      `rooms/${roomCode}/players/${player.id}/alive`
+    ] = false;
+    updates[
+      `rooms/${roomCode}/players/${player.id}/eliminationReason`
+    ] = "coldSleep";
+  });
 
   if (gameEnded) {
     updates[`rooms/${roomCode}/winner`] =
