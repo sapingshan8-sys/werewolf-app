@@ -503,6 +503,8 @@ export default function GamePage() {
             voteHistory={previousVoteHistory}
             voteStage={voteStage}
             runoffCandidates={runoffCandidates}
+            canProceed={myPlayerId === hostId}
+            onProceed={nextPhase}
           />
         );
 
@@ -784,6 +786,7 @@ export default function GamePage() {
       )}
 
       {myPlayerId === hostId &&
+        phase !== "discussion" &&
         phase !== "vote" &&
         phase !== "sleep" &&
         phase !== "evening" &&
