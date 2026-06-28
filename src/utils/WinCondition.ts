@@ -5,7 +5,7 @@ type PlayerWithId = Player & {
 };
 
 type WinResult = {
-  winner: "crew" | "gnosia" | null;
+  winner: "crew" | "gnosia" | "bug" | null;
   message: string;
 };
 
@@ -18,6 +18,9 @@ export function judgeWin(
   const aliveGnosiaCount = alivePlayers.filter(
     (player) => player.role === "gnosia"
   ).length;
+  const bugIsAlive = alivePlayers.some(
+    (player) => player.role === "bug"
+  );
   const aliveCrewCount = alivePlayers.filter(
     (player) =>
       player.role !== "gnosia" &&
@@ -25,6 +28,14 @@ export function judgeWin(
   ).length;
 
   if (aliveGnosiaCount === 0) {
+    if (bugIsAlive) {
+      return {
+        winner: "bug",
+        message:
+          "乗員陣営の勝利条件が満たされましたが、バグが生存していたため、バグの勝利です。",
+      };
+    }
+
     return {
       winner: "crew",
       message:
@@ -33,6 +44,14 @@ export function judgeWin(
   }
 
   if (aliveCrewCount <= aliveGnosiaCount) {
+    if (bugIsAlive) {
+      return {
+        winner: "bug",
+        message:
+          "グノーシア陣営の勝利条件が満たされましたが、バグが生存していたため、バグの勝利です。",
+      };
+    }
+
     return {
       winner: "gnosia",
       message:
