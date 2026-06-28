@@ -5,13 +5,24 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { ref, onValue, update } from "firebase/database";
-import { getRoles } from "@/lib/roles";
+import {
+  buildRolesFromCounts,
+  configurableRoles,
+  getDefaultRoleCounts,
+  roleLabels,
+  type RoleCounts,
+} from "@/lib/roles";
 import { shuffle } from "@/lib/shuffle";
 import { getPlayerSession } from "@/lib/playerSession";
 import type { Player } from "@/types/player";
 
 type PlayerWithId = Player & {
   id: string;
+};
+
+type RoleCountState = {
+  playerCount: number;
+  counts: RoleCounts;
 };
 
 export default function RoomPage() {
@@ -25,6 +36,11 @@ export default function RoomPage() {
   const [myPlayerId] = useState(() =>
     getPlayerSession().playerId
   );
+  const [roleCountState, setRoleCountState] =
+    useState<RoleCountState>(() => ({
+      playerCount: 0,
+      counts: getDefaultRoleCounts(0),
+    }));
 
   useEffect(() => {
     // ルーム情報監視
@@ -69,6 +85,13 @@ export default function RoomPage() {
     };
   }, [roomCode, router]);
 
+  if (roleCountState.playerCount !== players.length) {
+    setRoleCountState({
+      playerCount: players.length,
+      counts: getDefaultRoleCounts(players.length),
+    });
+  }
+
   // 自分
   const me = players.find(
     (player) => player.id === myPlayerId
@@ -78,6 +101,26 @@ export default function RoomPage() {
   const allReady =
     players.length > 0 &&
     players.every((player) => player.ready);
+  const roleCounts = roleCountState.counts;
+  const roleTotal = Object.values(roleCounts).reduce(
+    (sum, count) => sum + count,
+    0
+  );
+  const roleTotalMatchesPlayers =
+    roleTotal === players.length;
+
+  const changeRoleCount = (
+    role: string,
+    value: number
+  ) => {
+    setRoleCountState((currentState) => ({
+      ...currentState,
+      counts: {
+        ...currentState.counts,
+        [role]: Math.max(0, value),
+      },
+    }));
+  };
 
   // キャラクター選択
   const goCharacterSelect = () => {
@@ -87,13 +130,17 @@ export default function RoomPage() {
   // ゲーム開始
   const startGame = async () => {
     try {
-      // 人数に応じた役職一覧取得
-      const roles = getRoles(players.length);
+      const roles = buildRolesFromCounts(roleCounts);
 
       if (roles.length !== players.length) {
         alert(
-          `${players.length}人用の役職設定がありません`
+          `役職の合計人数を参加者数（${players.length}人）に合わせてください`
         );
+        return;
+      }
+
+      if ((roleCounts.gnosia ?? 0) === 0) {
+        alert("グノーシアは1人以上必要です");
         return;
       }
 
@@ -115,10 +162,19 @@ export default function RoomPage() {
       }
 
       // ゲーム開始
-        await update(ref(db, `rooms/${roomCode}`), {
-          status: "playing",
-          phase: "roleReveal",
-        });
+      await update(ref(db, `rooms/${roomCode}`), {
+        status: "playing",
+        phase: "roleReveal",
+        roleCounts,
+        votes: null,
+        nightActions: null,
+        eveningChats: null,
+        lastEliminatedPlayerId: null,
+        attackedPlayerId: null,
+        protectedSuccess: false,
+        engineerResults: null,
+        doctorResults: null,
+      });
 
       alert("役職を配布しました！");
     } catch (error) {
@@ -172,6 +228,54 @@ export default function RoomPage() {
         ))}
       </div>
 
+      {myPlayerId === hostId && (
+        <div className="mb-8 rounded-xl border p-5">
+          <h2 className="text-xl font-bold mb-2">
+            役職設定
+          </h2>
+
+          <p className="mb-4 text-sm text-gray-600">
+            誰がどの役職になるかはゲーム開始時にランダムで決まります。
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {configurableRoles.map((role) => (
+              <label
+                key={role}
+                className="flex items-center justify-between gap-4 rounded-lg border p-3"
+              >
+                <span className="font-semibold">
+                  {roleLabels[role]}
+                </span>
+
+                <input
+                  type="number"
+                  min={0}
+                  value={roleCounts[role] ?? 0}
+                  onChange={(event) =>
+                    changeRoleCount(
+                      role,
+                      Number(event.target.value)
+                    )
+                  }
+                  className="w-20 rounded border px-3 py-2 text-right"
+                />
+              </label>
+            ))}
+          </div>
+
+          <p
+            className={`mt-4 font-semibold ${
+              roleTotalMatchesPlayers
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            役職合計: {roleTotal} / 参加者: {players.length}
+          </p>
+        </div>
+      )}
+
       <button
         onClick={goCharacterSelect}
         className="bg-blue-500 text-white px-4 py-2 rounded mr-4"
@@ -184,7 +288,8 @@ export default function RoomPage() {
       {myPlayerId === hostId && allReady && (
         <button
           onClick={startGame}
-          className="bg-green-600 text-white px-4 py-2 rounded"
+          disabled={!roleTotalMatchesPlayers}
+          className="bg-green-600 disabled:bg-gray-400 text-white px-4 py-2 rounded"
         >
           ゲーム開始
         </button>
