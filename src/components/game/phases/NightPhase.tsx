@@ -44,15 +44,44 @@ type Props = {
   ) => Promise<void>;
 };
 
-const roleNames: Record<string, string> = {
-  crew: "乗員",
-  gnosia: "グノーシア",
-  engineer: "エンジニア",
-  doctor: "ドクター",
-  guardianAngel: "守護天使",
-  guardDuty: "留守番",
-  acFollower: "AC主義者",
-  bug: "バグ",
+const actionThemes: Record<
+  string,
+  {
+    title: string;
+    label: string;
+    background: string;
+    titlePanel: string;
+    selected: string;
+    watermark: string;
+  }
+> = {
+  engineer: {
+    title: "誰を調べますか",
+    label: "ANALYZE",
+    background:
+      "bg-[linear-gradient(110deg,#b9d8ee_0%,#d9ecf9_46%,#c2ddf2_100%)]",
+    titlePanel: "bg-[#1268a8]/88",
+    selected: "shadow-[0_0_0_5px_rgba(19,105,168,0.95)]",
+    watermark: "text-[#2e75aa]/12",
+  },
+  guardianAngel: {
+    title: "誰を守りますか",
+    label: "PROTECT",
+    background:
+      "bg-[linear-gradient(110deg,#e8c574_0%,#eff0cb_48%,#e5cf86_100%)]",
+    titlePanel: "bg-[#e0a008]/92",
+    selected: "shadow-[0_0_0_5px_rgba(18,105,168,0.95)]",
+    watermark: "text-[#d69f1b]/16",
+  },
+  gnosia: {
+    title: "獲物ヲ選べ",
+    label: "TARGET",
+    background:
+      "bg-[linear-gradient(110deg,#63302f_0%,#a16d55_48%,#713833_100%)]",
+    titlePanel: "bg-[#3b0709]/92",
+    selected: "shadow-[0_0_0_5px_rgba(210,0,16,0.95)]",
+    watermark: "text-[#b41016]/20",
+  },
 };
 
 export default function NightPhase({
@@ -91,6 +120,13 @@ export default function NightPhase({
     myPlayer.role === "gnosia"
       ? gnosiaAttackTargetId
       : selectedId;
+  const currentTheme =
+    actionThemes[myPlayer.role ?? ""] ??
+    actionThemes.engineer;
+  const hasTargetAction =
+    myPlayer.role === "engineer" ||
+    myPlayer.role === "guardianAngel" ||
+    myPlayer.role === "gnosia";
 
   useEffect(() => {
     if (myPlayer.role !== "gnosia") {
@@ -198,67 +234,82 @@ export default function NightPhase({
     description: string,
     buttonLabel: string
   ) => (
-    <div className="border rounded-xl p-6">
-      <h3 className="text-xl font-bold mb-3">
-        {roleNames[myPlayer.role ?? ""] ?? "夜行動"}
-      </h3>
-
-      <p className="mb-5 text-gray-700">
+    <div className="relative z-10">
+      <p className="mb-5 ml-36 max-w-xl bg-white/72 px-5 py-3 text-lg text-[#3e3b3b] shadow-[0_0_0_3px_rgba(255,255,255,0.72)] [clip-path:polygon(7%_0,100%_0,94%_100%,0_100%,0_28%)]">
         {description}
       </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid max-h-[38rem] w-[34rem] grid-cols-1 gap-4 overflow-y-auto pl-24 pr-4">
         {selectableTargets.map((player) => (
           <button
             key={player.id}
             onClick={() =>
               selectTarget(player.id)
             }
-            className={`border rounded-xl p-4 text-center transition ${
+            className={`group relative h-24 overflow-hidden bg-white/88 text-left transition hover:translate-x-1 [clip-path:polygon(12%_0,100%_0,92%_100%,0_100%,0_36%)] ${
               displayedSelectedId === player.id
-                ? "ring-4 ring-indigo-400"
-                : "hover:bg-indigo-50"
+                ? currentTheme.selected
+                : "shadow-[0_0_0_4px_rgba(255,255,255,0.72)]"
             }`}
           >
-            <Image
-              src={
-                player.character
-                  ? `/characters/${player.character}.png`
-                  : "/characters/question.png"
-              }
-              alt={player.character ?? "未選択"}
-              width={120}
-              height={120}
-              className="mx-auto rounded-lg"
-            />
+            <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden opacity-95">
+              <Image
+                src={
+                  player.character
+                    ? `/characters/${player.character}.png`
+                    : "/characters/question.png"
+                }
+                alt={player.character ?? "未選択"}
+                fill
+                sizes="260px"
+                className="object-cover object-center transition group-hover:scale-105"
+              />
+            </div>
 
-            <p className="mt-3 font-bold">
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.9)_48%,rgba(255,255,255,0.08)_100%)]" />
+            <div className="absolute inset-0 border-2 border-white/80 [clip-path:polygon(12%_0,100%_0,92%_100%,0_100%,0_36%)]" />
+
+            <p className="relative z-10 ml-14 mt-6 text-3xl font-light tracking-[0.08em] text-[#3e3b3b]">
               {player.name}
             </p>
           </button>
         ))}
       </div>
 
-      <div className="mt-8 flex justify-center">
+      <div className="absolute bottom-0 right-12">
         <button
           onClick={submitSelectedTarget}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl"
+          className="relative h-28 w-56 p-1 text-white transition hover:translate-x-[-2px]"
         >
-          {buttonLabel}
+          <span className="absolute inset-0 bg-white/86 shadow-[5px_5px_0_rgba(0,0,0,0.18)] [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute bottom-5 left-5 h-8 w-20 border-2 border-white/90 text-base leading-7 text-white/90">
+            DECIDE
+          </span>
+          <span className="relative z-10 block pl-16 pt-6 text-4xl font-light tracking-[0.08em]">
+            決定
+          </span>
+          <span className="sr-only">{buttonLabel}</span>
         </button>
       </div>
     </div>
   );
 
   const renderGnosiaChat = () => (
-    <div className="mb-8 border rounded-xl p-6">
-      <h3 className="text-xl font-bold mb-4">
+    <div className="absolute bottom-4 right-[19rem] z-20 w-[32rem] p-1 text-white">
+      <div className="absolute inset-0 bg-white/82 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(7%_0,100%_0,96%_100%,0_100%,0_16%)]" />
+      <div className="absolute inset-[5px] bg-[#727681]/82 [clip-path:polygon(7%_0,100%_0,96%_100%,0_100%,0_16%)]" />
+      <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(7%_0,100%_0,96%_100%,0_100%,0_16%)]" />
+
+      <div className="relative z-10 p-5">
+      <h3 className="mb-4 text-xl font-light tracking-[0.14em]">
         グノーシア相談チャット
       </h3>
 
-      <div className="border rounded-lg bg-gray-50 h-64 overflow-y-auto p-4">
+      <div className="h-36 overflow-y-auto bg-white/70 p-4 text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.58)] [clip-path:polygon(5%_0,100%_0,98%_100%,0_100%,0_18%)]">
         {messages.length === 0 ? (
-          <p className="text-gray-500">
+          <p className="text-[#666]">
             まだメッセージはありません。
           </p>
         ) : (
@@ -283,17 +334,18 @@ export default function NightPhase({
         onSend={sendGnosiaMessage}
         disabled={isChatSending || waiting}
       />
+      </div>
     </div>
   );
 
   const renderGnosiaAbility = () => (
-    <div>
+    <>
       {renderGnosiaChat()}
       {renderTargetGrid(
         "グノーシア全員で共有する襲撃対象を選択してください。",
         "この襲撃対象で夜行動を終了する"
       )}
-    </div>
+    </>
   );
 
   const renderAbility = () => {
@@ -306,37 +358,45 @@ export default function NightPhase({
 
       case "doctor":
         return (
-          <div className="border rounded-xl p-6">
-            <h3 className="text-xl font-bold mb-3">
+          <div className="mx-auto max-w-3xl">
+          <div className="relative p-1 text-white">
+            <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+            <div className="absolute inset-[5px] bg-[#727681]/82 [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+            <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+
+            <div className="relative z-10 p-8">
+            <h3 className="mb-4 text-3xl font-light tracking-[0.14em]">
               ドクター
             </h3>
 
             {lastEliminatedPlayer ? (
               <>
-                <p className="text-gray-700">
+                <p className="text-xl text-white/86">
                   本日コールドスリープされた
                   {lastEliminatedPlayer.name}
-                  を調査します。
+                  を脳解析します。
                 </p>
 
-                <div className="mt-6 flex justify-center">
+                <div className="mt-8 flex justify-center">
                   <button
                     onClick={() =>
                       finishNight(
                         lastEliminatedPlayer.id
                       )
                     }
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl"
+                    className="bg-white/16 px-8 py-3 text-xl font-semibold text-white shadow-[0_0_0_3px_rgba(255,255,255,0.72)] transition hover:bg-white/28 [clip-path:polygon(10%_0,100%_0,92%_100%,0_100%,0_32%)]"
                   >
-                    調査する
+                    脳解析する
                   </button>
                 </div>
               </>
             ) : (
-              <p className="text-gray-500">
+              <p className="text-white/72">
                 調査対象を読み込み中です。
               </p>
             )}
+            </div>
+          </div>
           </div>
         );
 
@@ -351,25 +411,41 @@ export default function NightPhase({
 
       default:
         return (
-          <div className="border rounded-xl p-6">
-            <h3 className="text-xl font-bold mb-3">
+          <div className="mx-auto max-w-3xl">
+          <div className="relative p-1 text-white">
+            <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+            <div className="absolute inset-[5px] bg-[#727681]/82 [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+            <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+
+            <div className="relative z-10 p-8">
+            <h3 className="mb-4 text-3xl font-light tracking-[0.14em]">
               夜フェーズ
             </h3>
 
-            <p>
+            <p className="text-xl text-white/88">
               あなたは夜に行動できません。
             </p>
 
-            <p className="text-gray-500 mt-3">
+            <p className="mt-3 text-white/72">
               行動を終了して、夜が明けるまでお待ちください。
             </p>
+            </div>
+          </div>
           </div>
         );
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <main className={`relative min-h-screen overflow-hidden px-8 py-8 text-[#2e2c2c] ${
+      hasTargetAction
+        ? currentTheme.background
+        : "bg-[linear-gradient(120deg,rgba(220,246,255,0.96)_0%,rgba(189,227,238,0.9)_45%,rgba(235,239,238,0.96)_100%)]"
+    }`}>
+      <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.11)_0px,rgba(255,255,255,0.11)_2px,transparent_2px,transparent_7px)]" />
+      <div className={`pointer-events-none absolute bottom-[-7rem] right-[-4rem] text-[28rem] font-black leading-none ${hasTargetAction ? currentTheme.watermark : "text-[#2e75aa]/10"}`}>
+        {hasTargetAction ? currentTheme.label : "NIGHT"}
+      </div>
 
       {waiting && (
         <WaitingOverlay
@@ -378,9 +454,18 @@ export default function NightPhase({
         />
       )}
 
-      <h2 className="text-3xl font-bold text-center mb-8">
-        夜フェーズ
-      </h2>
+      <div className="relative z-10 min-h-[calc(100vh-4rem)]">
+      <div className="mb-7 flex items-start justify-between gap-6">
+        <div className={`relative inline-block px-12 py-4 pr-24 text-white shadow-[0_0_0_4px_rgba(255,255,255,0.78),4px_4px_0_rgba(0,0,0,0.24)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)] ${hasTargetAction ? currentTheme.titlePanel : "bg-white/40"}`}>
+          <h2 className="text-5xl font-light tracking-[0.1em]">
+            {hasTargetAction ? currentTheme.title : "夜フェーズ"}
+          </h2>
+          {hasTargetAction && (
+            <span className="absolute right-8 top-0 text-5xl font-semibold italic text-white/22 [font-family:Georgia,Times_New_Roman,serif]">
+              {currentTheme.label}
+            </span>
+          )}
+        </div>
 
       <Timer
         initialSeconds={60}
@@ -392,40 +477,37 @@ export default function NightPhase({
           )
         }
       />
-
-      <div className="border rounded-xl p-6 mt-8">
-
-        <h3 className="text-2xl font-bold mb-2">
-          あなたの役職
-        </h3>
-
-        <p className="text-xl">
-          {roleNames[myPlayer.role ?? ""] ?? myPlayer.role}
-        </p>
-
       </div>
 
       {errorMessage && (
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 font-semibold text-red-700">
+        <div className="relative z-20 mb-5 ml-24 inline-block bg-red-50/92 px-5 py-3 font-semibold text-red-700 shadow-[0_0_0_3px_rgba(255,255,255,0.78)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_30%)]">
           {errorMessage}
         </div>
       )}
 
-      <div className="mt-8">
+      <div className="relative z-10">
         {renderAbility()}
       </div>
 
-      <div className="flex justify-center mt-10">
+      {!hasTargetAction && (
+      <div className="mt-10 flex justify-center">
 
         <button
           onClick={() => finishNight()}
-          className="bg-gray-700 hover:bg-gray-800 text-white px-8 py-3 rounded-xl"
+          className="relative h-20 w-64 p-1 text-white transition hover:translate-x-[-2px]"
         >
-          夜の行動を終了する
+          <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="relative z-10 block pt-5 text-2xl font-light tracking-[0.08em]">
+            行動を終了
+          </span>
         </button>
 
       </div>
+      )}
+      </div>
 
-    </div>
+    </main>
   );
 }
