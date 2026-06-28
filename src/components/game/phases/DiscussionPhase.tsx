@@ -169,9 +169,17 @@ export default function DiscussionPhase({
           <button
             type="button"
             onClick={onProceed}
-            className="absolute right-0 top-0 z-30 h-20 w-52 bg-[#8f8f8f]/88 px-7 py-4 text-3xl font-light leading-tight text-white shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.28)] transition hover:bg-[#777] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]"
+            className="group absolute right-0 top-0 z-50 h-24 w-56 p-1 text-white transition hover:translate-x-[-2px]"
           >
-            次へ
+            <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.26)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+            <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+            <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+            <span className="absolute left-7 top-7 h-8 w-14 border-2 border-white/90 text-base leading-7 text-white/90">
+              NEXT
+            </span>
+            <span className="relative z-10 block pl-16 pr-4 pt-4 text-3xl font-light leading-tight drop-shadow">
+              次へ
+            </span>
           </button>
         )}
 
@@ -180,11 +188,19 @@ export default function DiscussionPhase({
           onClick={() =>
             setIsRolePanelOpen((current) => !current)
           }
-          className="absolute right-0 top-28 z-30 h-24 w-56 bg-[#8f8f8f]/86 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.28)] transition hover:bg-[#777] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]"
+          className="group absolute right-0 top-28 z-50 h-32 w-64 p-1 text-white transition hover:translate-x-[-2px]"
         >
-          役割を
-          <br />
-          明かす
+          <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.26)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute left-7 top-20 h-8 w-14 border-2 border-white/90 text-base leading-7 text-white/90">
+            CO
+          </span>
+          <span className="relative z-10 block pl-20 pr-4 pt-5 text-3xl font-light leading-tight drop-shadow">
+            役割を
+            <br />
+            明かす
+          </span>
         </button>
 
         <button
@@ -192,11 +208,19 @@ export default function DiscussionPhase({
           onClick={() =>
             setIsVoteHistoryOpen((current) => !current)
           }
-          className="absolute right-0 top-64 z-30 h-24 w-52 bg-[#8f8f8f]/78 px-7 py-5 text-3xl font-light leading-tight text-white shadow-[0_0_0_4px_rgba(255,255,255,0.78),5px_5px_0_rgba(0,0,0,0.26)] transition hover:bg-[#777] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]"
+          className="group absolute right-4 top-72 z-50 h-32 w-64 p-1 text-white transition hover:translate-x-[-2px]"
         >
-          投票
-          <br />
-          結果
+          <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.26)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+          <span className="absolute left-7 top-20 h-8 w-14 border-2 border-white/90 text-base leading-7 text-white/90">
+            DATA
+          </span>
+          <span className="relative z-10 block pl-20 pr-4 pt-5 text-3xl font-light leading-tight drop-shadow">
+            投票
+            <br />
+            結果
+          </span>
         </button>
 
         {voteStage === "runoff" && (
@@ -256,7 +280,7 @@ export default function DiscussionPhase({
           </div>
         )}
 
-        <div className="absolute left-6 right-72 top-28 z-10 grid grid-cols-4 gap-3 pr-8">
+        <div className="absolute left-6 right-80 top-28 z-10 grid grid-cols-4 gap-3 pr-8">
           {players
             .filter((player) => player.alive !== false)
             .map((player) => (
@@ -293,24 +317,24 @@ export default function DiscussionPhase({
             ))}
         </div>
 
-        <div className="absolute bottom-[20.3rem] left-8 z-30">
-          <div className="bg-[#6cca58]/88 px-10 py-3 text-3xl font-light tracking-[0.12em] text-white shadow-[0_0_0_4px_rgba(190,255,170,0.9),4px_4px_0_rgba(0,0,0,0.24)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]">
+        <div className="absolute bottom-[15.2rem] left-8 z-30">
+          <div className="bg-[#6cca58]/88 px-8 py-2 text-2xl font-light tracking-[0.12em] text-white shadow-[0_0_0_4px_rgba(190,255,170,0.9),4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]">
             チャット
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-4 right-4 z-20 h-80 bg-white/84 px-10 py-8 shadow-[0_0_0_4px_rgba(255,255,255,0.72),5px_5px_0_rgba(0,0,0,0.18)] [clip-path:polygon(3%_0,100%_0,100%_100%,0_100%,0_12%)]">
-          <div className="h-44 overflow-y-auto pr-4">
+        <div className="absolute bottom-0 left-4 right-4 z-20 h-60 bg-white/84 px-8 py-7 shadow-[0_0_0_4px_rgba(255,255,255,0.72),5px_5px_0_rgba(0,0,0,0.18)] [clip-path:polygon(3%_0,100%_0,100%_100%,0_100%,0_12%)]">
+          <div className="h-32 overflow-y-auto pr-4">
             {messages.length === 0 ? (
-              <p className="text-2xl leading-relaxed text-[#777]">
+              <p className="text-xl leading-relaxed text-[#777]">
                 まだメッセージはありません。
               </p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {messages.map((chatMessage) => (
                   <div
                     key={chatMessage.id}
-                    className="grid grid-cols-[10rem_1fr] gap-4 text-2xl leading-relaxed text-[#3f3d3d]"
+                    className="grid grid-cols-[8rem_1fr] gap-4 text-xl leading-relaxed text-[#3f3d3d]"
                   >
                     <p className="truncate font-bold text-[#2870a4]">
                       {chatMessage.playerName}
@@ -326,9 +350,9 @@ export default function DiscussionPhase({
           </div>
         </div>
 
-        <div className="absolute bottom-4 right-10 z-30 flex w-[min(48rem,54vw)] gap-5">
+        <div className="absolute bottom-4 right-10 z-30 flex w-[min(38rem,48vw)] gap-3">
           {isSpectator ? (
-            <p className="flex-1 border-4 border-black bg-white px-6 py-4 text-2xl text-[#666]">
+            <p className="flex-1 border-[3px] border-black bg-white px-4 py-3 text-xl text-[#666]">
               閲覧者モードのため発言できません
             </p>
           ) : (
@@ -338,7 +362,7 @@ export default function DiscussionPhase({
                 value={message}
                 disabled={isSending}
                 placeholder="メッセージを入力..."
-                className="min-w-0 flex-1 border-4 border-black bg-white px-6 py-4 text-2xl text-[#666] outline-none placeholder:text-[#777]"
+                className="min-w-0 flex-1 border-[3px] border-black bg-white px-4 py-3 text-xl text-[#666] outline-none placeholder:text-[#777]"
                 onChange={(event) =>
                   setMessage(event.target.value)
                 }
@@ -353,7 +377,7 @@ export default function DiscussionPhase({
                 type="button"
                 onClick={submitMessage}
                 disabled={isSending}
-                className="border-4 border-black bg-white px-8 py-4 text-2xl text-[#666] transition hover:bg-gray-100 disabled:text-gray-300"
+                className="border-[3px] border-black bg-white px-6 py-3 text-xl text-[#666] transition hover:bg-gray-100 disabled:text-gray-300"
               >
                 送信
               </button>
