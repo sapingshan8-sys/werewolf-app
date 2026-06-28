@@ -44,6 +44,12 @@ const winnerNames: Record<string, string> = {
   bug: "バグ",
 };
 
+const eliminationLabels: Record<string, string> = {
+  coldSleep: "コールドスリープ",
+  attack: "消滅",
+  bug: "バグ消滅",
+};
+
 export default function ResultPhase({
   players,
   winner,
@@ -111,7 +117,9 @@ export default function ResultPhase({
             >
               {player.alive
                 ? "生存"
-                : "コールドスリープ"}
+                : eliminationLabels[
+                    player.eliminationReason ?? ""
+                  ] ?? "退場"}
             </p>
 
           </div>

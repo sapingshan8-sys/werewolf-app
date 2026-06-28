@@ -215,6 +215,7 @@ export async function executeNight(
       ),
       {
         alive: false,
+        eliminationReason: "attack",
       }
     );
   }
@@ -230,6 +231,9 @@ export async function executeNight(
     updates[
       `rooms/${roomCode}/players/${bugPlayerId}/alive`
     ] = false;
+    updates[
+      `rooms/${roomCode}/players/${bugPlayerId}/eliminationReason`
+    ] = "bug";
   });
 
   const playersAfterNight = players.map((player) => ({

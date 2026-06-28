@@ -178,6 +178,8 @@ async function finishVote(
   const updates: Record<string, unknown> = {
     [`rooms/${roomCode}/players/${exiledPlayer.id}/alive`]:
       false,
+    [`rooms/${roomCode}/players/${exiledPlayer.id}/eliminationReason`]:
+      "coldSleep",
     [`rooms/${roomCode}/lastEliminatedPlayerId`]:
       exiledPlayer.id,
     [`rooms/${roomCode}/voteResults`]: voteResults,

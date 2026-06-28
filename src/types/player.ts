@@ -5,6 +5,7 @@ export type Player = {
 
   role?: string;
   alive?: boolean;
+  eliminationReason?: "coldSleep" | "attack" | "bug";
   chatId?: string;
   eveningFinished?: boolean;
 };

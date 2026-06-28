@@ -157,6 +157,9 @@ export default function RoomPage() {
           {
             role: shuffledRoles[i],
             alive: true,
+            eliminationReason: null,
+            chatId: null,
+            eveningFinished: null,
           }
         );
       }

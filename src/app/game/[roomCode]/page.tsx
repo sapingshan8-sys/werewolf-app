@@ -219,6 +219,12 @@ export default function GamePage() {
       player.id === doctorResults?.targetId
   );
   const isSpectator = me?.alive === false;
+  const myEliminationLabel =
+    me?.eliminationReason === "attack"
+      ? "消滅しています"
+      : me?.eliminationReason === "bug"
+        ? "バグとして消滅しています"
+        : "コールドスリープ中です";
   const eveningPartners = players.filter(
     (player) =>
       player.chatId &&
@@ -638,7 +644,7 @@ export default function GamePage() {
           </h2>
 
           <p className="mt-2 text-gray-700">
-            あなたはコールドスリープ中です。
+            あなたは{myEliminationLabel}。
             以降の投票や夜行動には参加せず、進行を閲覧します。
           </p>
         </div>
