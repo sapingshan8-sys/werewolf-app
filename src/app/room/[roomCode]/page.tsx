@@ -290,21 +290,40 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">
-        ルーム：{roomCode}
-      </h1>
+    <main className="relative min-h-screen overflow-hidden bg-[#c8e2e6] px-6 py-10 text-[#6f5d4c]">
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.84)_0%,rgba(204,228,231,0.68)_36%,rgba(132,190,199,0.74)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(70,132,150,0.18)_0%,rgba(255,255,255,0.5)_32%,rgba(255,255,255,0.5)_68%,rgba(73,137,150,0.22)_100%)]" />
+      <div className="absolute inset-x-0 top-0 h-2/3 bg-[linear-gradient(180deg,rgba(255,255,255,0.78)_0%,rgba(255,255,255,0.18)_58%,rgba(255,255,255,0)_100%)]" />
 
-      <div className="mb-6">
+      <div className="relative z-10 mx-auto max-w-5xl">
+        <div className="relative mb-10 text-center">
+          <div className="absolute left-0 right-0 top-1/2 h-px bg-[#1e5b8e]/55" />
+
+          <h1 className="relative text-[clamp(2.8rem,8vw,5.5rem)] font-normal italic tracking-[0.18em] text-[#174b84] drop-shadow-[0_0_8px_rgba(255,255,255,0.75)] [font-family:Georgia,Times_New_Roman,serif]">
+            ROOM
+          </h1>
+        </div>
+
+        <div className="mb-8 flex flex-col items-center justify-between gap-4 rounded-sm border border-white/50 bg-white/22 px-6 py-5 shadow-[0_0_36px_rgba(255,255,255,0.24)] backdrop-blur-sm md:flex-row">
+          <div>
+            <p className="text-sm tracking-[0.28em] text-white/90 drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]">
+              ルームコード
+            </p>
+
+            <p className="mt-1 text-3xl tracking-[0.16em] text-[#174b84]">
+              {roomCode}
+            </p>
+          </div>
+
         <button
           onClick={leaveRoom}
-          className="rounded bg-gray-700 px-4 py-2 text-white hover:bg-gray-800"
+          className="px-5 py-2 text-sm tracking-[0.16em] text-[#6f5d4c] transition hover:text-[#264d72]"
         >
           退室して最初に戻る
         </button>
-      </div>
+        </div>
 
-      <h2 className="text-xl font-semibold mb-4">
+      <h2 className="mb-4 text-xl font-light tracking-[0.18em] text-[#174b84]">
         参加者一覧（{players.length}人）
       </h2>
 
@@ -312,7 +331,7 @@ export default function RoomPage() {
         {players.map((player) => (
           <div
             key={player.id}
-            className="border rounded-xl p-4 flex flex-col items-center shadow-sm"
+            className="flex flex-col items-center rounded-sm border border-white/50 bg-white/24 p-4 text-center shadow-[0_0_22px_rgba(255,255,255,0.18)] backdrop-blur-sm"
           >
             <Image
               src={
@@ -323,33 +342,33 @@ export default function RoomPage() {
               alt={player.character ?? "未選択"}
               width={100}
               height={100}
-              className="rounded-lg"
+              className="rounded-sm"
             />
 
-            <p className="mt-3 text-lg font-semibold">
+            <p className="mt-3 text-lg tracking-[0.08em] text-[#174b84]">
               {player.name}
             </p>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-[#6f5d4c]/70">
               {player.character ?? "未選択"}
             </p>
 
-            <p className="mt-2">
+            <p className="mt-2 text-sm tracking-[0.12em]">
               {player.ready
-                ? "✅ 準備完了"
-                : "⏳ 準備中"}
+                ? "準備完了"
+                : "準備中"}
             </p>
           </div>
         ))}
       </div>
 
       {myPlayerId === hostId && (
-        <div className="mb-8 rounded-xl border p-5">
-          <h2 className="text-xl font-bold mb-2">
+        <div className="mb-8 rounded-sm border border-white/50 bg-white/22 p-5 shadow-[0_0_36px_rgba(255,255,255,0.22)] backdrop-blur-sm">
+          <h2 className="mb-2 text-xl font-light tracking-[0.18em] text-[#174b84]">
             役職設定
           </h2>
 
-          <p className="mb-4 text-sm text-gray-600">
+          <p className="mb-4 text-sm text-[#6f5d4c]/75">
             誰がどの役職になるかはゲーム開始時にランダムで決まります。
           </p>
 
@@ -357,9 +376,9 @@ export default function RoomPage() {
             {configurableRoles.map((role) => (
               <div
                 key={role}
-                className="flex items-center justify-between gap-4 rounded-lg border p-3"
+                className="flex items-center justify-between gap-4 rounded-sm border border-white/50 bg-white/20 p-3"
               >
-                <span className="font-semibold">
+                <span className="font-semibold tracking-[0.08em] text-[#174b84]">
                   {roleLabels[role]}
                 </span>
 
@@ -374,7 +393,7 @@ export default function RoomPage() {
                         Number(event.target.value)
                       )
                     }
-                    className="w-20 rounded border px-3 py-2 text-right"
+                    className="w-20 rounded-sm border border-[#1e5b8e]/35 bg-white/30 px-3 py-2 text-right text-[#6f5d4c] outline-none focus:border-[#174b84]"
                   />
                 ) : (
                   <button
@@ -385,10 +404,10 @@ export default function RoomPage() {
                         role === "guardDuty" ? 2 : 1
                       )
                     }
-                    className={`rounded px-4 py-2 font-semibold text-white ${
+                    className={`rounded-sm px-4 py-2 font-semibold tracking-[0.12em] text-white ${
                       (roleCounts[role] ?? 0) > 0
-                        ? "bg-green-600 hover:bg-green-700"
-                        : "bg-gray-500 hover:bg-gray-600"
+                        ? "bg-[#174b84]/80 hover:bg-[#174b84]"
+                        : "bg-[#6f5d4c]/55 hover:bg-[#6f5d4c]/75"
                     }`}
                   >
                     {(roleCounts[role] ?? 0) > 0
@@ -405,8 +424,8 @@ export default function RoomPage() {
           <p
             className={`mt-4 font-semibold ${
               roleTotalMatchesPlayers
-                ? "text-green-600"
-                : "text-red-600"
+                ? "text-[#174b84]"
+                : "text-red-700"
             }`}
           >
             役職合計: {roleTotal} / 参加者: {players.length}
@@ -428,7 +447,7 @@ export default function RoomPage() {
 
       <button
         onClick={goCharacterSelect}
-        className="bg-blue-500 text-white px-4 py-2 rounded mr-4"
+        className="mr-4 px-5 py-3 text-[#6f5d4c] transition hover:text-[#264d72]"
       >
         {me?.ready
           ? "キャラクター変更"
@@ -439,17 +458,18 @@ export default function RoomPage() {
         <button
           onClick={startGame}
           disabled={!roleSettingsAreValid}
-          className="bg-green-600 disabled:bg-gray-400 text-white px-4 py-2 rounded"
+          className="px-5 py-3 text-[#6f5d4c] transition hover:text-[#264d72] disabled:text-[#6f5d4c]/40"
         >
           ゲーム開始
         </button>
       )}
 
       {!allReady && (
-        <p className="mt-4 text-gray-600">
+        <p className="mt-4 text-[#6f5d4c]/75">
           全員の準備が完了するまでお待ちください。
         </p>
       )}
-    </div>
+      </div>
+    </main>
   );
 }
