@@ -823,6 +823,7 @@ export default function GamePage() {
     phase === "roleReveal" ||
     phase === "sleep" ||
     phase === "evening" ||
+    phase === "night" ||
     phase === "morning"
   ) {
     return renderPhaseContent();

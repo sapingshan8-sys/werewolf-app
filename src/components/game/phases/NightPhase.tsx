@@ -197,6 +197,13 @@ export default function NightPhase({
     }
   };
 
+  const selectAndSubmitTarget = async (
+    targetId: string
+  ) => {
+    await selectTarget(targetId);
+    await finishNight(targetId);
+  };
+
   const finishNight = async (
     targetId?: string
   ) => {
@@ -214,38 +221,22 @@ export default function NightPhase({
     }
   };
 
-  const submitSelectedTarget = async () => {
-    const targetId =
-      myPlayer.role === "gnosia"
-        ? gnosiaAttackTargetId
-        : selectedId;
-
-    if (!targetId) {
-      setErrorMessage(
-        "対象を選択してください。"
-      );
-      return;
-    }
-
-    await finishNight(targetId);
-  };
-
   const renderTargetGrid = (
-    description: string,
-    buttonLabel: string
+    description: string
   ) => (
-    <div className="relative z-10">
-      <p className="mb-5 ml-36 max-w-xl bg-white/72 px-5 py-3 text-lg text-[#3e3b3b] shadow-[0_0_0_3px_rgba(255,255,255,0.72)] [clip-path:polygon(7%_0,100%_0,94%_100%,0_100%,0_28%)]">
+    <div className="relative z-10 min-h-0">
+      <p className="mb-5 ml-8 max-w-3xl bg-white/72 px-5 py-3 text-lg text-[#3e3b3b] shadow-[0_0_0_3px_rgba(255,255,255,0.72)] [clip-path:polygon(7%_0,100%_0,94%_100%,0_100%,0_28%)]">
         {description}
       </p>
 
-      <div className="grid max-h-[38rem] w-[34rem] grid-cols-1 gap-4 overflow-y-auto pl-24 pr-4">
+      <div className="grid max-h-[calc(100vh-15rem)] w-[38rem] grid-cols-1 gap-4 overflow-y-auto px-8 pb-4">
         {selectableTargets.map((player) => (
           <button
             key={player.id}
             onClick={() =>
-              selectTarget(player.id)
+              selectAndSubmitTarget(player.id)
             }
+            disabled={waiting}
             className={`group relative h-24 overflow-hidden bg-white/88 text-left transition hover:translate-x-1 [clip-path:polygon(12%_0,100%_0,92%_100%,0_100%,0_36%)] ${
               displayedSelectedId === player.id
                 ? currentTheme.selected
@@ -275,29 +266,11 @@ export default function NightPhase({
           </button>
         ))}
       </div>
-
-      <div className="absolute bottom-0 right-12">
-        <button
-          onClick={submitSelectedTarget}
-          className="relative h-28 w-56 p-1 text-white transition hover:translate-x-[-2px]"
-        >
-          <span className="absolute inset-0 bg-white/86 shadow-[5px_5px_0_rgba(0,0,0,0.18)] [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
-          <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
-          <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
-          <span className="absolute bottom-5 left-5 h-8 w-20 border-2 border-white/90 text-base leading-7 text-white/90">
-            DECIDE
-          </span>
-          <span className="relative z-10 block pl-16 pt-6 text-4xl font-light tracking-[0.08em]">
-            決定
-          </span>
-          <span className="sr-only">{buttonLabel}</span>
-        </button>
-      </div>
     </div>
   );
 
   const renderGnosiaChat = () => (
-    <div className="absolute bottom-4 right-[19rem] z-20 w-[32rem] p-1 text-white">
+    <div className="relative z-20 min-h-0 p-1 text-white">
       <div className="absolute inset-0 bg-white/82 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(7%_0,100%_0,96%_100%,0_100%,0_16%)]" />
       <div className="absolute inset-[5px] bg-[#727681]/82 [clip-path:polygon(7%_0,100%_0,96%_100%,0_100%,0_16%)]" />
       <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(7%_0,100%_0,96%_100%,0_100%,0_16%)]" />
@@ -307,7 +280,7 @@ export default function NightPhase({
         グノーシア相談チャット
       </h3>
 
-      <div className="h-36 overflow-y-auto bg-white/70 p-4 text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.58)] [clip-path:polygon(5%_0,100%_0,98%_100%,0_100%,0_18%)]">
+      <div className="h-44 overflow-y-auto bg-white/70 p-4 text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.58)] [clip-path:polygon(5%_0,100%_0,98%_100%,0_100%,0_18%)]">
         {messages.length === 0 ? (
           <p className="text-[#666]">
             まだメッセージはありません。
@@ -339,21 +312,19 @@ export default function NightPhase({
   );
 
   const renderGnosiaAbility = () => (
-    <>
-      {renderGnosiaChat()}
+    <div className="grid min-h-0 gap-8 lg:grid-cols-[42rem_1fr]">
       {renderTargetGrid(
-        "グノーシア全員で共有する襲撃対象を選択してください。",
-        "この襲撃対象で夜行動を終了する"
+        "襲撃対象を選択してください。選択すると夜行動を終了します。"
       )}
-    </>
+      {renderGnosiaChat()}
+    </div>
   );
 
   const renderAbility = () => {
     switch (myPlayer.role) {
       case "engineer":
         return renderTargetGrid(
-          "調査するプレイヤーを選択してください。",
-          "調査対象を決定する"
+          "調査するプレイヤーを選択してください。選択すると夜行動を終了します。"
         );
 
       case "doctor":
@@ -402,8 +373,7 @@ export default function NightPhase({
 
       case "guardianAngel":
         return renderTargetGrid(
-          "守るプレイヤーを選択してください。",
-          "守護対象を決定する"
+          "守るプレイヤーを選択してください。選択すると夜行動を終了します。"
         );
 
       case "gnosia":
