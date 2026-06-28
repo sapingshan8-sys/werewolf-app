@@ -52,19 +52,31 @@ export default function VotePhase({
       : currentVoteTargetId === "noExile"
         ? "誰もコールドスリープしない"
         : "";
+  const title =
+    voteStage === "runoff"
+      ? "再投票して下さい"
+      : isExileDecision
+        ? "決定して下さい"
+        : "投票して下さい";
+  const englishTitle =
+    isExileDecision ? "DECISION" : "VOTE";
 
   return (
-    <div>
+    <div className="relative -mx-8 -my-8 min-h-screen bg-[linear-gradient(180deg,#eeeeee_0%,#d9dcde_100%)] px-8 py-8 text-[#3e3b3b]">
+      <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.16)_0px,rgba(255,255,255,0.16)_2px,transparent_2px,transparent_7px)]" />
 
-      <h2 className="text-3xl font-bold mb-4">
-        {voteStage === "runoff"
-          ? "再投票フェーズ"
-          : isExileDecision
-            ? "コールドスリープ可否投票"
-            : "投票フェーズ"}
-      </h2>
+      <div className="relative z-10">
+        <div className="relative mb-8 inline-block bg-[#e6aa08]/95 px-8 py-3 pr-24 shadow-[0_0_0_4px_rgba(255,255,255,0.85)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)]">
+          <h2 className="text-4xl font-light tracking-[0.08em]">
+            {title}
+          </h2>
 
-      <p className="mb-6 text-gray-700">
+          <span className="absolute right-8 top-1 text-5xl font-semibold italic text-white/40 [font-family:Georgia,Times_New_Roman,serif]">
+            {englishTitle}
+          </span>
+        </div>
+
+      <p className="mb-6 max-w-3xl text-lg text-[#565252]">
         {voteStage === "runoff"
           ? "前回最多票だった人物の中から選んでください。"
           : isExileDecision
@@ -72,12 +84,8 @@ export default function VotePhase({
             : "コールドスリープする人物を選んでください。"}
       </p>
 
-      <div className="mb-8 rounded-xl border bg-red-50 p-4">
-        <p className="font-semibold">
-          投票
-        </p>
-
-        <p className="mt-2 text-gray-700">
+      <div className="mb-8 max-w-4xl border-l-4 border-white/80 bg-white/50 p-4 shadow-[0_0_0_2px_rgba(255,255,255,0.6)]">
+        <p className="text-[#565252]">
           {voteStage === "runoff"
             ? "候補者以外には投票できません。自分には投票できません。"
             : isExileDecision
@@ -85,12 +93,12 @@ export default function VotePhase({
               : "生存者を1人選択してください。自分には投票できません。"}
         </p>
 
-        <p className="mt-3 text-sm text-gray-600">
+        <p className="mt-3 text-sm text-[#6f5d4c]">
           投票済み: {submittedCount} / {alivePlayers.length}
         </p>
 
         {(votedTarget || decisionLabel) && (
-          <p className="mt-3 font-semibold text-red-700">
+          <p className="mt-3 font-semibold text-[#1b78b7]">
             あなたは{" "}
             {votedTarget?.name ?? decisionLabel} に投票しました。
             全員の投票を待っています。
@@ -106,8 +114,8 @@ export default function VotePhase({
 
       {isExileDecision && (
         <>
-          <div className="mb-6 rounded-xl border p-4">
-            <h3 className="mb-3 text-xl font-bold">
+          <div className="mb-6 max-w-4xl border-l-4 border-white/80 bg-white/50 p-4">
+            <h3 className="mb-3 text-xl font-light tracking-[0.12em]">
               対象者
             </h3>
 
@@ -115,7 +123,7 @@ export default function VotePhase({
               {runoffCandidates.map((player) => (
                 <span
                   key={player.id}
-                  className="rounded-full bg-red-100 px-4 py-2 font-semibold text-red-700"
+                  className="bg-[#f2a8bd]/80 px-4 py-2 font-semibold text-[#5b3940]"
                 >
                   {player.name}
                 </span>
@@ -123,7 +131,7 @@ export default function VotePhase({
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid max-w-4xl gap-5 md:grid-cols-2">
             <button
               disabled={
                 isSubmitting ||
@@ -132,11 +140,11 @@ export default function VotePhase({
               onClick={() =>
                 voteExileDecision("exileAll")
               }
-              className={`rounded-xl border p-6 text-xl font-bold transition ${
+              className={`relative h-28 overflow-hidden text-2xl transition [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)] ${
                 currentVoteTargetId === "exileAll"
-                  ? "ring-4 ring-red-300"
-                  : "hover:bg-red-50"
-              } disabled:bg-gray-200 disabled:text-gray-500`}
+                  ? "bg-[#f2a8bd] shadow-[0_0_0_4px_rgba(210,225,0,0.95),0_0_0_8px_rgba(255,255,255,0.85)]"
+                  : "bg-white/82 shadow-[0_0_0_4px_rgba(255,255,255,0.86)] hover:bg-[#f2c3cf]"
+              } disabled:opacity-60`}
             >
               全員コールドスリープする
             </button>
@@ -149,11 +157,11 @@ export default function VotePhase({
               onClick={() =>
                 voteExileDecision("noExile")
               }
-              className={`rounded-xl border p-6 text-xl font-bold transition ${
+              className={`relative h-28 overflow-hidden text-2xl transition [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)] ${
                 currentVoteTargetId === "noExile"
-                  ? "ring-4 ring-blue-300"
-                  : "hover:bg-blue-50"
-              } disabled:bg-gray-200 disabled:text-gray-500`}
+                  ? "bg-[#b7d6ee] shadow-[0_0_0_4px_rgba(210,225,0,0.95),0_0_0_8px_rgba(255,255,255,0.85)]"
+                  : "bg-white/82 shadow-[0_0_0_4px_rgba(255,255,255,0.86)] hover:bg-[#dcebf6]"
+              } disabled:opacity-60`}
             >
               誰もコールドスリープしない
             </button>
@@ -162,7 +170,7 @@ export default function VotePhase({
       )}
 
       {!isExileDecision && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="grid gap-x-10 gap-y-5 lg:grid-cols-3">
 
         {alivePlayers.map((player) => {
 
@@ -187,42 +195,52 @@ export default function VotePhase({
                 onClick={() =>
                   votePlayer(player.id)
                 }
-                className={`border rounded-xl p-4 transition
+                className={`group relative h-24 overflow-hidden text-left transition [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]
                   ${
-                    disabled
-                      ? "bg-gray-200 cursor-not-allowed"
-                      : "hover:bg-red-100"
+                    voted
+                      ? "bg-[#b7d6ee] shadow-[0_0_0_4px_rgba(210,225,0,0.95),0_0_0_8px_rgba(255,255,255,0.85)]"
+                      : disabled
+                        ? "bg-white/45 opacity-55 shadow-[0_0_0_4px_rgba(255,255,255,0.65)]"
+                        : "bg-white/82 shadow-[0_0_0_4px_rgba(255,255,255,0.86)] hover:bg-[#dcebf6]"
                   }
-                  ${voted ? "ring-4 ring-red-300" : ""}
                 `}
               >
+                <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden opacity-90">
+                  <Image
+                    src={
+                      player.character
+                        ? `/characters/${player.character}.png`
+                        : "/characters/question.png"
+                    }
+                    alt={player.character ?? ""}
+                    fill
+                    sizes="260px"
+                    className="object-cover object-center transition group-hover:scale-105"
+                  />
+                </div>
 
-                <Image
-                  src={`/characters/${player.character}.png`}
-                  alt={player.character ?? ""}
-                  width={120}
-                  height={120}
-                  className="mx-auto rounded-lg"
-                />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.9)_46%,rgba(255,255,255,0.08)_100%)]" />
 
-                <p className="mt-3 font-bold">
+                <div className="absolute inset-0 border-2 border-white/80 [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]" />
+
+                <p className="relative z-10 ml-12 mt-5 text-3xl font-light tracking-[0.08em]">
                   {player.name}
                 </p>
 
                 {isMe && (
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="relative z-10 ml-12 mt-1 text-sm text-[#6f5d4c]">
                     あなた
                   </p>
                 )}
 
                 {!isRunoffCandidate && (
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="relative z-10 ml-12 mt-1 text-sm text-[#6f5d4c]">
                     候補外
                   </p>
                 )}
 
                 {voted && (
-                  <p className="mt-2 text-sm font-semibold text-red-700">
+                  <p className="relative z-10 ml-12 mt-1 text-sm font-semibold tracking-[0.18em] text-[#1b78b7]">
                     投票済み
                   </p>
                 )}
@@ -235,6 +253,7 @@ export default function VotePhase({
         </div>
       )}
 
+      </div>
     </div>
   );
 }
