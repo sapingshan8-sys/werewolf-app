@@ -512,6 +512,29 @@ export default function GamePage() {
             )}
               </section>
             </div>
+
+            {myPlayerId === hostId ? (
+              <div className="absolute bottom-12 right-12 z-20">
+                <button
+                  onClick={nextPhase}
+                  className="relative h-24 w-52 p-1 text-white transition hover:translate-x-[-2px]"
+                >
+                  <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+                  <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+                  <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
+                  <span className="absolute bottom-4 left-5 h-7 w-16 border-2 border-white/90 text-sm leading-6 text-white/90">
+                    NEXT
+                  </span>
+                  <span className="relative z-10 block pl-14 pt-5 text-3xl font-light tracking-[0.08em]">
+                    次へ
+                  </span>
+                </button>
+              </div>
+            ) : (
+              <p className="absolute bottom-12 right-12 z-20 bg-white/60 px-6 py-3 text-sm tracking-[0.12em] text-[#3e3b3b] shadow-[0_0_0_3px_rgba(255,255,255,0.72)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_30%)]">
+                ホストが次のフェーズへ進めるまでお待ちください。
+              </p>
+            )}
           </main>
         );
 
