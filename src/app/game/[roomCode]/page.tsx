@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { ref, onValue, update } from "firebase/database";
 import type { Player } from "@/types/player";
+import DiscussionPhase from "@/components/game/phases/DiscussionPhase";
 import VotePhase from "@/components/game/phases/VotePhase";
 import EveningPhase from "@/components/game/phases/EveningPhase";
 import NightPhase from "@/components/game/phases/NightPhase";
@@ -98,6 +99,7 @@ export default function GamePage() {
   );
   const [hostId, setHostId] = useState("");
   const [phase, setPhase] = useState("");
+  const [day, setDay] = useState(1);
   const [lastEliminatedPlayerId, setLastEliminatedPlayerId] =
     useState("");
   const [votes, setVotes] = useState<VoteMap>({});
@@ -135,6 +137,7 @@ export default function GamePage() {
 
       setPhase(room.phase ?? "");
       setHostId(room.hostId ?? "");
+      setDay(room.day ?? 1);
       setLastEliminatedPlayerId(
         room.lastEliminatedPlayerId ?? ""
       );
@@ -312,37 +315,6 @@ export default function GamePage() {
     return <div className="p-8">読み込み中...</div>;
   }
 
-  const renderPlayerList = () => {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {players
-          .filter((player) => player.alive !== false)
-          .map((player) => (
-            <div
-              key={player.id}
-              className="border rounded-xl p-4 text-center"
-            >
-              <Image
-                src={`/characters/${player.character}.png`}
-                alt={player.character ?? ""}
-                width={120}
-                height={120}
-                className="mx-auto rounded-lg"
-              />
-
-              <p className="mt-3 font-bold">
-                {player.name}
-              </p>
-
-              <p className="text-green-600">
-                生存
-              </p>
-            </div>
-          ))}
-      </div>
-    );
-  };
-
   const renderPhaseContent = () => {
     switch (phase) {
       case "roleReveal":
@@ -374,17 +346,13 @@ export default function GamePage() {
 
       case "discussion":
         return (
-          <>
-            <h2 className="text-2xl font-bold mb-4">
-              議論フェーズ
-            </h2>
-
-            <p className="mb-6">
-              怪しい人物について話し合いましょう。
-            </p>
-
-            {renderPlayerList()}
-          </>
+          <DiscussionPhase
+            roomCode={roomCode}
+            day={day}
+            players={players}
+            myPlayer={me}
+            isSpectator={isSpectator}
+          />
         );
 
       case "vote":
