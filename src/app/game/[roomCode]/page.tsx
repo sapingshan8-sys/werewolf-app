@@ -747,6 +747,8 @@ export default function GamePage() {
               engineerTarget
                 ? {
                     targetName: engineerTarget.name,
+                    targetCharacter:
+                      engineerTarget.character,
                     isGnosia:
                       myEngineerResult.isGnosia,
                   }
@@ -758,6 +760,8 @@ export default function GamePage() {
               doctorTarget
                 ? {
                     targetName: doctorTarget.name,
+                    targetCharacter:
+                      doctorTarget.character,
                     isHuman:
                       doctorResults.isHuman,
                   }
@@ -795,7 +799,8 @@ export default function GamePage() {
     phase === "discussion" ||
     phase === "roleReveal" ||
     phase === "sleep" ||
-    phase === "evening"
+    phase === "evening" ||
+    phase === "morning"
   ) {
     return renderPhaseContent();
   }
