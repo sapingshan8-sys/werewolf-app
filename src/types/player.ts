@@ -5,4 +5,6 @@ export type Player = {
 
   role?: string;
   alive?: boolean;
+  chatId?: string;
+  eveningFinished?: boolean;
 };

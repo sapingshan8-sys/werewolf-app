@@ -7,7 +7,9 @@ import { db } from "@/lib/firebase";
 import { ref, onValue, update } from "firebase/database";
 import type { Player } from "@/types/player";
 import VotePhase from "@/components/game/phases/VotePhase";
+import EveningPhase from "@/components/game/phases/EveningPhase";
 import { submitVote } from "@/utils/VoteManager";
+import { finishEveningIfReady } from "@/utils/EveningManager";
 import { getPlayerSession } from "@/lib/playerSession";
 
 type PlayerWithId = Player & {
@@ -116,6 +118,13 @@ export default function GamePage() {
     (player) => player.id === lastEliminatedPlayerId
   );
   const isSpectator = me?.alive === false;
+  const eveningPartners = players.filter(
+    (player) =>
+      player.chatId &&
+      player.chatId === me?.chatId &&
+      player.id !== myPlayerId &&
+      player.alive !== false
+  );
 
   const nextPhase = async () => {
     const currentIndex = phaseOrder.indexOf(phase);
@@ -159,6 +168,17 @@ export default function GamePage() {
     } finally {
       setIsVoteSubmitting(false);
     }
+  };
+
+  const finishEvening = async () => {
+    if (!myPlayerId || isSpectator) {
+      return;
+    }
+
+    await finishEveningIfReady(
+      roomCode,
+      myPlayerId
+    );
   };
 
   if (!me) {
@@ -315,16 +335,72 @@ export default function GamePage() {
         );
 
       case "evening":
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-4xl font-bold">
-              夕方
-            </h2>
+        if (isSpectator) {
+          return (
+            <div className="py-16">
+              <h2 className="text-4xl font-bold">
+                夕方会議
+              </h2>
 
-            <p className="mt-6 text-xl">
-              今日も一日が終わります。
-            </p>
-          </div>
+              <p className="mt-6 text-xl text-gray-700">
+                あなたは閲覧者モードのため、密談には参加しません。
+              </p>
+
+              {lastEliminatedPlayer && (
+                <div className="mt-10 rounded-xl border bg-gray-50 p-6">
+                  <h3 className="text-2xl font-bold mb-5">
+                    本日のコールドスリープ
+                  </h3>
+
+                  <div className="flex flex-col items-center text-center">
+                    <Image
+                      src={
+                        lastEliminatedPlayer.character
+                          ? `/characters/${lastEliminatedPlayer.character}.png`
+                          : "/characters/question.png"
+                      }
+                      alt={
+                        lastEliminatedPlayer.character ??
+                        "未選択"
+                      }
+                      width={160}
+                      height={160}
+                      className="rounded-xl"
+                    />
+
+                    <p className="mt-4 text-2xl font-bold">
+                      {lastEliminatedPlayer.name}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        if (!me.chatId) {
+          return (
+            <div className="text-center py-20">
+              <h2 className="text-4xl font-bold">
+                夕方会議
+              </h2>
+
+              <p className="mt-6 text-xl">
+                密談グループを読み込み中です。
+              </p>
+            </div>
+          );
+        }
+
+        return (
+          <EveningPhase
+            roomCode={roomCode}
+            myPlayer={me}
+            eliminatedPlayer={lastEliminatedPlayer}
+            partners={eveningPartners}
+            chatId={me.chatId}
+            onTimerFinish={finishEvening}
+          />
         );
 
       case "night":
@@ -394,7 +470,8 @@ export default function GamePage() {
 
       {myPlayerId === hostId &&
         phase !== "vote" &&
-        phase !== "sleep" && (
+        phase !== "sleep" &&
+        phase !== "evening" && (
         <div className="mb-8">
           <button
             onClick={nextPhase}
