@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 import Timer from "../common/Timer";
-import PlayerCard from "../common/PlayerCard";
 
 import EveningPair from "../evening/EveningPair";
 import EveningChat from "../evening/EveningChat";
@@ -20,8 +19,6 @@ type Props = {
 
   myPlayer: PlayerWithId;
 
-  eliminatedPlayer?: PlayerWithId;
-
   partners: PlayerWithId[];
 
   chatId: string;
@@ -32,7 +29,6 @@ type Props = {
 export default function EveningPhase({
   roomCode,
   myPlayer,
-  eliminatedPlayer,
   partners,
   chatId,
   onTimerFinish,
@@ -67,25 +63,6 @@ export default function EveningPhase({
         initialSeconds={120}
         onFinish={finishEvening}
       />
-
-      {/* コールドスリープ結果 */}
-      <div className="border rounded-xl p-6 mt-8">
-
-        <h3 className="text-2xl font-bold mb-4">
-          本日のコールドスリープ
-        </h3>
-
-        {eliminatedPlayer ? (
-          <PlayerCard
-            player={eliminatedPlayer}
-          />
-        ) : (
-          <p className="text-gray-500">
-            本日は誰もコールドスリープされませんでした。
-          </p>
-        )}
-
-      </div>
 
       {/* 密談相手 */}
       <div className="mt-8">

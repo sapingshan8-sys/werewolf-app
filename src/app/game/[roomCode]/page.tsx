@@ -523,7 +523,6 @@ export default function GamePage() {
           <EveningPhase
             roomCode={roomCode}
             myPlayer={me}
-            eliminatedPlayer={lastEliminatedPlayer}
             partners={eveningPartners}
             chatId={me.chatId}
             onTimerFinish={finishEvening}
