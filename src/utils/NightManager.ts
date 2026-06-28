@@ -7,6 +7,7 @@ import {
 import { db } from "@/lib/firebase";
 
 import type { Player } from "@/types/player";
+import { judgeWin } from "./WinCondition";
 
 type PlayerWithId = Player & {
   id: string;
@@ -231,6 +232,17 @@ export async function executeNight(
     ] = false;
   });
 
+  const playersAfterNight = players.map((player) => ({
+    ...player,
+    alive:
+      player.id === attackedPlayerId ||
+      bugKilledIds.includes(player.id)
+        ? false
+        : player.alive,
+  }));
+  const winResult = judgeWin(playersAfterNight);
+  const gameEnded = winResult.winner !== null;
+
   //------------------------------------------------
   // 能力結果保存
   //------------------------------------------------
@@ -257,6 +269,36 @@ export async function executeNight(
   updates[`rooms/${roomCode}/bugKilledIds`] =
     bugKilledIds;
 
+  if (gameEnded) {
+    const day = (
+      (
+        await get(
+          ref(
+            db,
+            `rooms/${roomCode}/day`
+          )
+        )
+      ).val() ?? 1
+    ) + 1;
+    const time = new Date().toLocaleTimeString(
+      "ja-JP",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
+
+    updates[`rooms/${roomCode}/winner`] =
+      winResult.winner;
+    updates[`rooms/${roomCode}/gameLogs/result-${day}`] =
+      {
+        id: `result-${day}`,
+        day,
+        time,
+        message: winResult.message,
+      };
+  }
+
   await update(ref(db), updates);
 
   //------------------------------------------------
@@ -277,7 +319,7 @@ export async function executeNight(
   await update(
     ref(db, `rooms/${roomCode}`),
     {
-      phase: "morning",
+      phase: gameEnded ? "result" : "morning",
       day:
         (
           (

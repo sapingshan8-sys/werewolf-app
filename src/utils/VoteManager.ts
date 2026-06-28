@@ -9,6 +9,7 @@ import type { Player } from "@/types/player";
 
 import { createEveningGroups } from "./EveningManager";
 import type { VoteResult } from "./PairGenerator";
+import { judgeWin } from "./WinCondition";
 
 type PlayerWithId = Player & {
   id: string;
@@ -172,10 +173,8 @@ async function finishVote(
     })
   );
 
-  const gnosiaStillAlive = remainingPlayers.some(
-    (player) => player.role === "gnosia"
-  );
-  const gameEnded = !gnosiaStillAlive;
+  const winResult = judgeWin(remainingPlayers);
+  const gameEnded = winResult.winner !== null;
   const updates: Record<string, unknown> = {
     [`rooms/${roomCode}/players/${exiledPlayer.id}/alive`]:
       false,
@@ -200,14 +199,14 @@ async function finishVote(
   };
 
   if (gameEnded) {
-    updates[`rooms/${roomCode}/winner`] = "crew";
+    updates[`rooms/${roomCode}/winner`] =
+      winResult.winner;
     updates[`rooms/${roomCode}/gameLogs/result-${day}`] =
       {
         id: `result-${day}`,
         day,
         time,
-        message:
-          "グノーシアが全員コールドスリープしたため、乗員陣営の勝利です。",
+        message: winResult.message,
       };
   }
 
