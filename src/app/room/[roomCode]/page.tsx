@@ -28,6 +28,19 @@ type RoleCountState = {
   counts: RoleCounts;
 };
 
+const countEditableRoles = [
+  "crew",
+  "gnosia",
+];
+
+const singleToggleRoles = [
+  "engineer",
+  "doctor",
+  "guardianAngel",
+  "acFollower",
+  "bug",
+];
+
 export default function RoomPage() {
   const params = useParams();
   const router = useRouter();
@@ -115,9 +128,16 @@ export default function RoomPage() {
     roleCounts.guardDuty ?? 0;
   const guardDutyCountIsValid =
     guardDutyCount === 0 || guardDutyCount === 2;
+  const singleToggleRolesAreValid =
+    singleToggleRoles.every((role) => {
+      const count = roleCounts[role] ?? 0;
+
+      return count === 0 || count === 1;
+    });
   const roleSettingsAreValid =
     roleTotalMatchesPlayers &&
-    guardDutyCountIsValid;
+    guardDutyCountIsValid &&
+    singleToggleRolesAreValid;
 
   const changeRoleCount = (
     role: string,
@@ -130,6 +150,18 @@ export default function RoomPage() {
         [role]: Math.max(0, value),
       },
     }));
+  };
+
+  const toggleRole = (
+    role: string,
+    enabledCount: number
+  ) => {
+    const currentCount = roleCounts[role] ?? 0;
+
+    changeRoleCount(
+      role,
+      currentCount > 0 ? 0 : enabledCount
+    );
   };
 
   // キャラクター選択
@@ -193,6 +225,13 @@ export default function RoomPage() {
 
       if (!guardDutyCountIsValid) {
         alert("留守番は0人または2人にしてください");
+        return;
+      }
+
+      if (!singleToggleRolesAreValid) {
+        alert(
+          "エンジニア、ドクター、守護天使、AC主義者、バグは0人または1人にしてください"
+        );
         return;
       }
 
@@ -313,7 +352,7 @@ export default function RoomPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {configurableRoles.map((role) => (
-              <label
+              <div
                 key={role}
                 className="flex items-center justify-between gap-4 rounded-lg border p-3"
               >
@@ -321,19 +360,42 @@ export default function RoomPage() {
                   {roleLabels[role]}
                 </span>
 
-                <input
-                  type="number"
-                  min={0}
-                  value={roleCounts[role] ?? 0}
-                  onChange={(event) =>
-                    changeRoleCount(
-                      role,
-                      Number(event.target.value)
-                    )
-                  }
-                  className="w-20 rounded border px-3 py-2 text-right"
-                />
-              </label>
+                {countEditableRoles.includes(role) ? (
+                  <input
+                    type="number"
+                    min={0}
+                    value={roleCounts[role] ?? 0}
+                    onChange={(event) =>
+                      changeRoleCount(
+                        role,
+                        Number(event.target.value)
+                      )
+                    }
+                    className="w-20 rounded border px-3 py-2 text-right"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleRole(
+                        role,
+                        role === "guardDuty" ? 2 : 1
+                      )
+                    }
+                    className={`rounded px-4 py-2 font-semibold text-white ${
+                      (roleCounts[role] ?? 0) > 0
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-gray-500 hover:bg-gray-600"
+                    }`}
+                  >
+                    {(roleCounts[role] ?? 0) > 0
+                      ? role === "guardDuty"
+                        ? "ON（2人）"
+                        : "ON"
+                      : "OFF"}
+                  </button>
+                )}
+              </div>
             ))}
           </div>
 
@@ -350,6 +412,12 @@ export default function RoomPage() {
           {!guardDutyCountIsValid && (
             <p className="mt-3 font-semibold text-red-600">
               留守番は0人または2人にしてください。
+            </p>
+          )}
+
+          {!singleToggleRolesAreValid && (
+            <p className="mt-3 font-semibold text-red-600">
+              エンジニア、ドクター、守護天使、AC主義者、バグは0人または1人にしてください。
             </p>
           )}
         </div>
