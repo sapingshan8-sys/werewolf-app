@@ -83,17 +83,21 @@ export default function EveningChat({
   };
 
   return (
-    <div className="border rounded-xl p-6">
+    <section className="relative min-h-[28rem] p-1 text-white">
+      <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_14%)]" />
+      <div className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_14%)]" />
+      <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_14%)]" />
 
-      <h2 className="text-2xl font-bold mb-4">
+      <div className="relative z-10 p-6">
+      <h2 className="mb-4 text-3xl font-light tracking-[0.14em]">
         密談チャット
       </h2>
 
       {/* チャット一覧 */}
-      <div className="border rounded-lg bg-gray-50 h-96 overflow-y-auto p-4">
+      <div className="h-80 overflow-y-auto bg-white/72 p-5 text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.65)] [clip-path:polygon(4%_0,100%_0,98%_100%,0_100%,0_14%)]">
 
         {messages.length === 0 ? (
-          <p className="text-gray-500">
+          <p className="text-[#666]">
             まだメッセージはありません。
           </p>
         ) : (
@@ -102,7 +106,7 @@ export default function EveningChat({
               key={message.id}
               className="mb-4"
             >
-              <p className="font-bold text-blue-600">
+              <p className="font-bold text-[#2870a4]">
                 {message.playerName}
               </p>
 
@@ -120,6 +124,7 @@ export default function EveningChat({
         onSend={sendMessage}
       />
 
-    </div>
+      </div>
+    </section>
   );
 }

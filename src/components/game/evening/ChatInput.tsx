@@ -24,14 +24,14 @@ export default function ChatInput({
   };
 
   return (
-    <div className="flex gap-3 mt-4">
+    <div className="mt-5 flex gap-3">
 
       <input
         type="text"
         value={message}
         disabled={disabled}
         placeholder="メッセージを入力..."
-        className="flex-1 border rounded-lg px-3 py-2"
+        className="min-w-0 flex-1 border-[3px] border-black bg-white px-4 py-3 text-lg text-[#666] outline-none placeholder:text-[#777]"
         onChange={(e) =>
           setMessage(e.target.value)
         }
@@ -45,7 +45,7 @@ export default function ChatInput({
       <button
         onClick={send}
         disabled={disabled}
-        className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-5 rounded-lg transition"
+        className="border-[3px] border-black bg-white px-6 py-3 text-lg text-[#666] transition hover:bg-gray-100 disabled:text-gray-300"
       >
         送信
       </button>

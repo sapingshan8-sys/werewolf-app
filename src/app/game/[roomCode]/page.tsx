@@ -412,45 +412,70 @@ export default function GamePage() {
     switch (phase) {
       case "roleReveal":
         return (
-          <div className="border rounded-xl p-6">
+          <main className="relative min-h-screen overflow-hidden bg-[#d8eff8] px-8 py-8 text-[#2e2c2c]">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(220,246,255,0.96)_0%,rgba(189,227,238,0.9)_45%,rgba(235,239,238,0.96)_100%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.8)_0%,transparent_28%),radial-gradient(circle_at_76%_70%,rgba(113,190,199,0.22)_0%,transparent_34%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.05)_0px,rgba(255,255,255,0.05)_2px,transparent_2px,transparent_7px)]" />
 
-            <h2 className="text-2xl font-bold mb-4">
-              あなたの役職
-            </h2>
+            <div className="relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-12">
+              <section className="w-[26rem] shrink-0 bg-white/78 p-6 shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.22)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_26%)]">
+                <Image
+                  src={`/characters/${me.character}.png`}
+                  alt={me.character ?? ""}
+                  width={360}
+                  height={360}
+                  priority
+                  className="mx-auto aspect-square object-cover"
+                />
 
-            <Image
-              src={`/characters/${me.character}.png`}
-              alt={me.character ?? ""}
-              width={180}
-              height={180}
-              className="rounded-xl"
-            />
+                <p className="mt-5 text-center text-3xl font-light tracking-[0.12em]">
+                  {me.name}
+                </p>
+              </section>
 
-            <p className="text-2xl font-bold mt-4">
-              {me.name}
-            </p>
+              <section className="min-w-0 flex-1">
+                <div className="mb-8 inline-block bg-white/88 px-10 py-4 pr-24 shadow-[0_0_0_4px_rgba(255,255,255,0.86),4px_4px_0_rgba(0,0,0,0.28)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)]">
+                  <h2 className="text-4xl font-light tracking-[0.16em]">
+                    役職提示
+                  </h2>
+                </div>
 
-            <p className="text-3xl text-blue-600 font-bold mt-4">
-              {roleNames[me.role ?? ""] ?? "？？？"}
-            </p>
+                <div className="relative p-1 text-white">
+                  <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+                  <div className="absolute inset-[5px] bg-[#727681]/82 [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+                  <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+
+                  <div className="relative z-10 px-12 py-10">
+                    <p className="text-lg tracking-[0.28em] text-white/72">
+                      YOUR ROLE
+                    </p>
+
+                    <p className="mt-3 text-6xl font-light tracking-[0.18em]">
+                      {roleNames[me.role ?? ""] ?? "？？？"}
+                    </p>
+                  </div>
+                </div>
 
             {(me.role === "gnosia" ||
               me.role === "guardDuty") && (
-              <div className="mt-8 rounded-xl border bg-gray-50 p-5">
-                <h3 className="text-xl font-bold mb-4">
+              <div className="relative mt-8 p-1 text-white">
+                <div className="absolute inset-0 bg-white/82 shadow-[4px_4px_0_rgba(0,0,0,0.18)] [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+                <div className="absolute inset-[5px] bg-[#727681]/72 [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+                <div className="relative z-10 p-6">
+                <h3 className="text-2xl font-light tracking-[0.16em]">
                   相方
                 </h3>
 
                 {knownPartners.length === 0 ? (
-                  <p className="text-gray-600">
+                  <p className="mt-4 text-white/84">
                     相方はいません。
                   </p>
                 ) : (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="mt-5 grid grid-cols-2 gap-4">
                     {knownPartners.map((partner) => (
                       <div
                         key={partner.id}
-                        className="rounded-lg border bg-white p-3 text-center"
+                        className="bg-white/72 p-3 text-center text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.72)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_30%)]"
                       >
                         <Image
                           src={
@@ -464,7 +489,7 @@ export default function GamePage() {
                           }
                           width={100}
                           height={100}
-                          className="mx-auto rounded-lg"
+                          className="mx-auto aspect-square object-cover"
                         />
 
                         <p className="mt-2 font-bold">
@@ -474,10 +499,12 @@ export default function GamePage() {
                     ))}
                   </div>
                 )}
+                </div>
               </div>
             )}
-
-          </div>
+              </section>
+            </div>
+          </main>
         );
 
       case "discussion":
@@ -583,18 +610,22 @@ export default function GamePage() {
       case "evening":
         if (isSpectator) {
           return (
-            <div className="py-16">
-              <h2 className="text-4xl font-bold">
-                夕方会議
-              </h2>
+            <main className="relative min-h-screen overflow-hidden bg-[#d8eff8] px-8 py-8 text-[#2e2c2c]">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(220,246,255,0.96)_0%,rgba(189,227,238,0.9)_45%,rgba(235,239,238,0.96)_100%)]" />
+              <div className="relative z-10 mx-auto max-w-4xl py-16">
+                <div className="inline-block bg-white/88 px-10 py-4 pr-24 shadow-[0_0_0_4px_rgba(255,255,255,0.86),4px_4px_0_rgba(0,0,0,0.28)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)]">
+                  <h2 className="text-4xl font-light tracking-[0.16em]">
+                    夕方会議
+                  </h2>
+                </div>
 
-              <p className="mt-6 text-xl text-gray-700">
-                あなたは閲覧者モードのため、密談には参加しません。
-              </p>
+                <p className="mt-8 bg-white/74 p-6 text-xl shadow-[0_0_0_4px_rgba(255,255,255,0.72)] [clip-path:polygon(5%_0,100%_0,96%_100%,0_100%,0_20%)]">
+                  あなたは閲覧者モードのため、密談には参加しません。
+                </p>
 
               {lastEliminatedPlayer && (
-                <div className="mt-10 rounded-xl border bg-gray-50 p-6">
-                  <h3 className="text-2xl font-bold mb-5">
+                <div className="mt-10 bg-white/74 p-6 shadow-[0_0_0_4px_rgba(255,255,255,0.72)] [clip-path:polygon(5%_0,100%_0,96%_100%,0_100%,0_20%)]">
+                  <h3 className="mb-5 text-2xl font-light tracking-[0.12em]">
                     本日のコールドスリープ
                   </h3>
 
@@ -611,7 +642,7 @@ export default function GamePage() {
                       }
                       width={160}
                       height={160}
-                      className="rounded-xl"
+                      className="aspect-square object-cover"
                     />
 
                     <p className="mt-4 text-2xl font-bold">
@@ -620,21 +651,22 @@ export default function GamePage() {
                   </div>
                 </div>
               )}
-            </div>
+              </div>
+            </main>
           );
         }
 
         if (!me.chatId) {
           return (
-            <div className="text-center py-20">
-              <h2 className="text-4xl font-bold">
+            <main className="relative min-h-screen bg-[#d8eff8] px-8 py-20 text-center">
+              <h2 className="text-4xl font-light tracking-[0.16em]">
                 夕方会議
               </h2>
 
               <p className="mt-6 text-xl">
                 密談グループを読み込み中です。
               </p>
-            </div>
+            </main>
           );
         }
 
@@ -744,7 +776,11 @@ export default function GamePage() {
     }
   };
 
-  if (phase === "discussion") {
+  if (
+    phase === "discussion" ||
+    phase === "roleReveal" ||
+    phase === "evening"
+  ) {
     return renderPhaseContent();
   }
 
