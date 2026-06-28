@@ -279,6 +279,14 @@ export default function GamePage() {
         (me?.role === "guardDuty" &&
           player.role === "guardDuty"))
   );
+  const coldSleepFocus = lastEliminatedPlayers[0];
+  const coldSleepNames = lastEliminatedPlayers
+    .map((player) => player.name)
+    .join("、");
+  const coldSleepAnnouncement =
+    lastEliminatedPlayers.length > 0
+      ? `${coldSleepNames}がコールドスリープしました`
+      : "本日は誰もコールドスリープしませんでした";
 
   const nextPhase = async () => {
     const currentIndex = phaseOrder.indexOf(phase);
@@ -542,69 +550,76 @@ export default function GamePage() {
 
       case "sleep":
         return (
-          <div className="py-16">
-            <h2 className="text-4xl font-bold">
-              コールドスリープ
-            </h2>
+          <main className="relative min-h-screen overflow-hidden bg-black px-8 py-8 text-white">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_42%,rgba(43,86,112,0.42)_0%,rgba(3,8,15,0.56)_30%,rgba(0,0,0,0.98)_68%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,1)_0%,rgba(0,0,0,0.94)_42%,rgba(0,0,0,0.34)_72%,rgba(0,0,0,0.7)_100%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.035)_0px,rgba(255,255,255,0.035)_2px,transparent_2px,transparent_7px)]" />
 
-            <p className="mt-6 text-xl text-gray-700">
-              全員の投票が終了しました。
-            </p>
+            {coldSleepFocus && (
+              <div className="absolute bottom-0 right-[-3rem] top-0 w-[46rem] opacity-55">
+                <Image
+                  src={
+                    coldSleepFocus.character
+                      ? `/characters/${coldSleepFocus.character}.png`
+                      : "/characters/question.png"
+                  }
+                  alt={
+                    coldSleepFocus.character ?? "未選択"
+                  }
+                  fill
+                  priority
+                  sizes="760px"
+                  className="object-cover object-center saturate-[0.85]"
+                />
+              </div>
+            )}
 
-            <div className="mt-10 rounded-xl border bg-gray-50 p-6">
-              <h3 className="text-2xl font-bold mb-5">
-                本日のコールドスリープ
-              </h3>
+            <div className="relative z-10 flex min-h-[calc(100vh-4rem)] items-center justify-center">
+              <section className="relative w-[min(78rem,78vw)] p-1">
+                <div className="absolute inset-0 bg-white/82 shadow-[8px_8px_0_rgba(255,255,255,0.16)] [clip-path:polygon(5%_0,100%_0,100%_78%,91%_100%,0_100%,0_15%)]" />
+                <div className="absolute inset-[5px] bg-[#656875]/72 [clip-path:polygon(5%_0,100%_0,100%_78%,91%_100%,0_100%,0_15%)]" />
+                <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(5%_0,100%_0,100%_78%,91%_100%,0_100%,0_15%)]" />
 
-              {lastEliminatedPlayers.length > 0 ? (
-                <div className="grid gap-5 md:grid-cols-2">
-                  {lastEliminatedPlayers.map((player) => (
-                    <div
-                      key={player.id}
-                      className="flex flex-col items-center text-center"
-                    >
-                      <Image
-                        src={
-                          player.character
-                            ? `/characters/${player.character}.png`
-                            : "/characters/question.png"
-                        }
-                        alt={
-                          player.character ?? "未選択"
-                        }
-                        width={180}
-                        height={180}
-                        className="rounded-xl"
-                      />
-
-                      <p className="mt-4 text-3xl font-bold">
-                        {player.name}
-                      </p>
-
-                      <p className="mt-3 text-lg font-semibold text-red-600">
-                        コールドスリープとなりました
-                      </p>
-                    </div>
-                  ))}
+                <div className="relative z-10 flex min-h-72 items-center justify-center px-16 py-12">
+                  <p className="text-center text-4xl font-light leading-relaxed tracking-[0.12em] text-white drop-shadow">
+                    {coldSleepAnnouncement}
+                  </p>
                 </div>
-              ) : (
-                <p className="text-gray-600">
-                  本日は誰もコールドスリープしませんでした。
-                </p>
-              )}
-            </div>
 
-            {myPlayerId === hostId && (
-              <div className="mt-8 text-center">
+                {lastEliminatedPlayers.length > 1 && (
+                  <div className="relative z-10 mx-auto mb-9 flex max-w-4xl flex-wrap justify-center gap-3 px-10">
+                    {lastEliminatedPlayers.map((player) => (
+                      <span
+                        key={player.id}
+                        className="bg-white/16 px-5 py-2 text-lg tracking-[0.08em] shadow-[0_0_0_2px_rgba(255,255,255,0.48)] [clip-path:polygon(10%_0,100%_0,92%_100%,0_100%,0_32%)]"
+                      >
+                        {player.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {myPlayerId === hostId && (
+                  <div className="absolute bottom-[-5rem] right-4 z-20">
                 <button
                   onClick={nextPhase}
-                  className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700"
+                      className="relative h-28 w-56 p-1 text-white transition hover:translate-x-[-2px]"
                 >
-                  夕方会議へ進む
+                      <span className="absolute inset-0 bg-white/86 shadow-[5px_5px_0_rgba(255,255,255,0.14)] [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
+                      <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
+                      <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
+                      <span className="absolute bottom-5 left-5 h-8 w-20 border-2 border-white/90 text-base leading-7 text-white/90">
+                        NEXT
+                      </span>
+                      <span className="relative z-10 block pl-16 pt-6 text-4xl font-light tracking-[0.08em]">
+                        次へ
+                      </span>
                 </button>
               </div>
             )}
-          </div>
+              </section>
+            </div>
+          </main>
         );
 
       case "evening":
@@ -779,6 +794,7 @@ export default function GamePage() {
   if (
     phase === "discussion" ||
     phase === "roleReveal" ||
+    phase === "sleep" ||
     phase === "evening"
   ) {
     return renderPhaseContent();
