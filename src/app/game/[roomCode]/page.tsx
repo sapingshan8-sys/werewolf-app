@@ -8,8 +8,10 @@ import { ref, onValue, update } from "firebase/database";
 import type { Player } from "@/types/player";
 import VotePhase from "@/components/game/phases/VotePhase";
 import EveningPhase from "@/components/game/phases/EveningPhase";
+import NightPhase from "@/components/game/phases/NightPhase";
 import { submitVote } from "@/utils/VoteManager";
 import { finishEveningIfReady } from "@/utils/EveningManager";
+import { submitNightAction } from "@/utils/NightManager";
 import { getPlayerSession } from "@/lib/playerSession";
 
 type PlayerWithId = Player & {
@@ -17,6 +19,14 @@ type PlayerWithId = Player & {
 };
 
 type VoteMap = Record<string, string>;
+type NightActionMap = Record<
+  string,
+  {
+    role?: string;
+    targetId?: string;
+    finished?: boolean;
+  }
+>;
 
 const roleNames: Record<string, string> = {
   crew: "乗員",
@@ -63,6 +73,8 @@ export default function GamePage() {
   const [lastEliminatedPlayerId, setLastEliminatedPlayerId] =
     useState("");
   const [votes, setVotes] = useState<VoteMap>({});
+  const [nightActions, setNightActions] =
+    useState<NightActionMap>({});
   const [voteError, setVoteError] = useState("");
   const [isVoteSubmitting, setIsVoteSubmitting] =
     useState(false);
@@ -82,6 +94,7 @@ export default function GamePage() {
         room.lastEliminatedPlayerId ?? ""
       );
       setVotes(room.votes ?? {});
+      setNightActions(room.nightActions ?? {});
     });
 
     // プレイヤー監視
@@ -178,6 +191,20 @@ export default function GamePage() {
     await finishEveningIfReady(
       roomCode,
       myPlayerId
+    );
+  };
+
+  const submitMyNightAction = async (
+    targetId?: string
+  ) => {
+    if (!me) {
+      return;
+    }
+
+    await submitNightAction(
+      roomCode,
+      me,
+      targetId
     );
   };
 
@@ -404,16 +431,30 @@ export default function GamePage() {
         );
 
       case "night":
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-4xl font-bold">
-              夜
-            </h2>
+        if (isSpectator) {
+          return (
+            <div className="py-16">
+              <h2 className="text-4xl font-bold">
+                夜
+              </h2>
 
-            <p className="mt-6 text-xl">
-              能力を使用するプレイヤーは行動してください。
-            </p>
-          </div>
+              <p className="mt-6 text-xl text-gray-700">
+                あなたは閲覧者モードのため、夜行動には参加しません。
+              </p>
+            </div>
+          );
+        }
+
+        return (
+          <NightPhase
+            myPlayer={me}
+            players={players}
+            lastEliminatedPlayer={lastEliminatedPlayer}
+            alreadyFinished={
+              nightActions[myPlayerId]?.finished === true
+            }
+            onSubmitAction={submitMyNightAction}
+          />
         );
 
       case "result":
@@ -471,7 +512,8 @@ export default function GamePage() {
       {myPlayerId === hostId &&
         phase !== "vote" &&
         phase !== "sleep" &&
-        phase !== "evening" && (
+        phase !== "evening" &&
+        phase !== "night" && (
         <div className="mb-8">
           <button
             onClick={nextPhase}

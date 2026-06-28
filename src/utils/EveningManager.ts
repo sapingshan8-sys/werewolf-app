@@ -94,6 +94,7 @@ export async function startNight(
     ref(db, `rooms/${roomCode}`),
     {
       phase: "night",
+      nightActions: null,
     }
   );
 }

@@ -18,6 +18,64 @@ type NightAction = {
   finished?: boolean;
 };
 
+function getAlivePlayers(players: PlayerWithId[]) {
+  return players.filter(
+    (player) => player.alive !== false
+  );
+}
+
+export async function submitNightAction(
+  roomCode: string,
+  player: PlayerWithId,
+  targetId?: string
+) {
+  if (player.alive === false) {
+    return;
+  }
+
+  await update(
+    ref(
+      db,
+      `rooms/${roomCode}/nightActions/${player.id}`
+    ),
+    {
+      role: player.role ?? "crew",
+      targetId: targetId ?? null,
+      finished: true,
+    }
+  );
+
+  const roomSnap = await get(
+    ref(db, `rooms/${roomCode}`)
+  );
+
+  const room = roomSnap.val();
+
+  if (!room || room.phase !== "night") {
+    return;
+  }
+
+  const players: PlayerWithId[] = Object.entries(
+    room.players ?? {}
+  ).map(([id, value]) => ({
+    id,
+    ...(value as Player),
+  }));
+
+  const actions: Record<string, NightAction> =
+    room.nightActions ?? {};
+
+  const allFinished = getAlivePlayers(players).every(
+    (alivePlayer) =>
+      alivePlayer.id === player.id ||
+      actions[alivePlayer.id]?.finished === true
+  );
+
+  if (allFinished) {
+    await executeNight(roomCode);
+  }
+}
+
 export async function executeNight(
   roomCode: string
 ) {
@@ -74,19 +132,23 @@ export async function executeNight(
   //------------------------------------------------
 
   let attackTarget: string | null = null;
+  let doctorTarget: string | null = null;
 
   for (const playerId in actions) {
     const action = actions[playerId];
 
     switch (action.role) {
       case "engineer": {
+        if (!action.targetId) {
+          break;
+        }
 
         const target = players.find(
           (p) => p.id === action.targetId
         );
 
         engineerResults[playerId] = {
-          targetId: action.targetId!,
+          targetId: action.targetId,
           isGnosia:
             target?.role === "gnosia",
         };
@@ -94,7 +156,14 @@ export async function executeNight(
         break;
       }
 
-      case "guardian": {
+      case "doctor": {
+        doctorTarget =
+          action.targetId ?? null;
+
+        break;
+      }
+
+      case "guardianAngel": {
 
         protectedId =
           action.targetId ?? null;
@@ -131,14 +200,33 @@ export async function executeNight(
     );
   }
 
+  const attackedPlayerId =
+    attackTarget && attackTarget !== protectedId
+      ? attackTarget
+      : null;
+
   //------------------------------------------------
-  // エンジニア結果保存
+  // 能力結果保存
   //------------------------------------------------
+
+  const doctorResults = doctorTarget
+    ? {
+        targetId: doctorTarget,
+        isHuman:
+          players.find((p) => p.id === doctorTarget)
+            ?.role !== "gnosia",
+      }
+    : null;
 
   await update(
     ref(db, `rooms/${roomCode}`),
     {
       engineerResults,
+      doctorResults,
+      protectedSuccess:
+        Boolean(attackTarget) &&
+        attackTarget === protectedId,
+      attackedPlayerId,
     }
   );
 
