@@ -193,9 +193,19 @@ export async function executeNight(
   // 襲撃処理
   //------------------------------------------------
 
+  const attackTargetPlayer = players.find(
+    (player) => player.id === attackTarget
+  );
+  const bugSurvivedAttack =
+    attackTargetPlayer?.role === "bug";
+  const attackPrevented =
+    Boolean(attackTarget) &&
+    (attackTarget === protectedId ||
+      bugSurvivedAttack);
+
   if (
     attackTarget &&
-    attackTarget !== protectedId
+    !attackPrevented
   ) {
     await update(
       ref(
@@ -209,7 +219,7 @@ export async function executeNight(
   }
 
   const attackedPlayerId =
-    attackTarget && attackTarget !== protectedId
+    attackTarget && !attackPrevented
       ? attackTarget
       : null;
 
@@ -239,8 +249,7 @@ export async function executeNight(
   updates[`rooms/${roomCode}/doctorResults`] =
     doctorResults;
   updates[`rooms/${roomCode}/protectedSuccess`] =
-    Boolean(attackTarget) &&
-    attackTarget === protectedId;
+    attackPrevented;
   updates[`rooms/${roomCode}/attackedPlayerId`] =
     attackedPlayerId;
   updates[`rooms/${roomCode}/bugKilled`] =

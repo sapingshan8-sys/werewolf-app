@@ -68,7 +68,7 @@ export default function MorningPhase({
 
         {protectedSuccess ? (
           <p className="text-green-600 text-lg">
-            守護天使が襲撃を防ぎました。
+            襲撃は失敗しました。
           </p>
         ) : attackedPlayer ? (
           <div className="flex items-center gap-4">
