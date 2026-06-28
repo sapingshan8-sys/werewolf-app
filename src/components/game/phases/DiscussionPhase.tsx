@@ -11,10 +11,12 @@ import { db } from "@/lib/firebase";
 import {
   configurableRoles,
   roleLabels,
+  type RoleCounts,
 } from "@/lib/roles";
 import PlayerGrid from "../common/PlayerGrid";
 import type { Player } from "@/types/player";
 import ChatInput from "../evening/ChatInput";
+import VoteHistory from "../result/VoteHistory";
 
 type PlayerWithId = Player & {
   id: string;
@@ -28,12 +30,22 @@ type Message = {
   createdAt: number;
 };
 
+type VoteHistoryDay = {
+  day: number;
+  votes: {
+    voterName: string;
+    targetName: string;
+  }[];
+};
+
 type Props = {
   roomCode: string;
   day: number;
   players: PlayerWithId[];
   myPlayer: PlayerWithId;
   isSpectator: boolean;
+  roleCounts: RoleCounts;
+  voteHistory: VoteHistoryDay[];
 };
 
 export default function DiscussionPhase({
@@ -42,9 +54,16 @@ export default function DiscussionPhase({
   players,
   myPlayer,
   isSpectator,
+  roleCounts,
+  voteHistory,
 }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState(false);
+  const [isVoteHistoryOpen, setIsVoteHistoryOpen] =
+    useState(false);
+  const claimableRoles = configurableRoles.filter(
+    (role) => (roleCounts[role] ?? 0) > 0
+  );
 
   useEffect(() => {
     const messagesRef = ref(
@@ -165,7 +184,7 @@ export default function DiscussionPhase({
           </h3>
 
           <div className="grid grid-cols-2 gap-3">
-            {configurableRoles.map((role) => (
+            {claimableRoles.map((role) => (
               <button
                 key={role}
                 type="button"
@@ -177,7 +196,31 @@ export default function DiscussionPhase({
               </button>
             ))}
           </div>
+
+          {claimableRoles.length === 0 && (
+            <p className="text-gray-500">
+              COできる役職を読み込み中です。
+            </p>
+          )}
         </div>
+      </div>
+
+      <div className="mb-8">
+        <button
+          type="button"
+          onClick={() =>
+            setIsVoteHistoryOpen((current) => !current)
+          }
+          className="rounded-lg border px-4 py-2 font-semibold hover:bg-gray-50"
+        >
+          {isVoteHistoryOpen
+            ? "投票履歴を閉じる"
+            : "前日以前の投票履歴を見る"}
+        </button>
+
+        {isVoteHistoryOpen && (
+          <VoteHistory history={voteHistory} />
+        )}
       </div>
 
       <PlayerGrid players={players} />

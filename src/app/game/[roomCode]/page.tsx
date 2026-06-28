@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { ref, onValue, update } from "firebase/database";
 import type { Player } from "@/types/player";
+import type { RoleCounts } from "@/lib/roles";
 import DiscussionPhase from "@/components/game/phases/DiscussionPhase";
 import VotePhase from "@/components/game/phases/VotePhase";
 import EveningPhase from "@/components/game/phases/EveningPhase";
@@ -100,6 +101,8 @@ export default function GamePage() {
   const [hostId, setHostId] = useState("");
   const [phase, setPhase] = useState("");
   const [day, setDay] = useState(1);
+  const [roleCounts, setRoleCounts] =
+    useState<RoleCounts>({});
   const [lastEliminatedPlayerId, setLastEliminatedPlayerId] =
     useState("");
   const [votes, setVotes] = useState<VoteMap>({});
@@ -138,6 +141,7 @@ export default function GamePage() {
       setPhase(room.phase ?? "");
       setHostId(room.hostId ?? "");
       setDay(room.day ?? 1);
+      setRoleCounts(room.roleCounts ?? {});
       setLastEliminatedPlayerId(
         room.lastEliminatedPlayerId ?? ""
       );
@@ -234,6 +238,9 @@ export default function GamePage() {
       player.chatId === me?.chatId &&
       player.id !== myPlayerId &&
       player.alive !== false
+  );
+  const previousVoteHistory = voteHistory.filter(
+    (history) => history.day < day
   );
 
   const nextPhase = async () => {
@@ -352,6 +359,8 @@ export default function GamePage() {
             players={players}
             myPlayer={me}
             isSpectator={isSpectator}
+            roleCounts={roleCounts}
+            voteHistory={previousVoteHistory}
           />
         );
 

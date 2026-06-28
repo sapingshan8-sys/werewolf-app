@@ -168,9 +168,11 @@ export default function RoomPage() {
       await update(ref(db, `rooms/${roomCode}`), {
         status: "playing",
         phase: "roleReveal",
+        day: 1,
         roleCounts,
         votes: null,
         nightActions: null,
+        discussionChats: null,
         eveningChats: null,
         lastEliminatedPlayerId: null,
         attackedPlayerId: null,
