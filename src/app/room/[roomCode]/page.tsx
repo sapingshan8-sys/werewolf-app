@@ -176,6 +176,9 @@ export default function RoomPage() {
         bugKilledIds: null,
         engineerResults: null,
         doctorResults: null,
+        winner: null,
+        gameLogs: null,
+        voteHistory: null,
       });
 
       alert("役職を配布しました！");

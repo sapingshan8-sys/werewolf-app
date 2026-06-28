@@ -10,6 +10,7 @@ import VotePhase from "@/components/game/phases/VotePhase";
 import EveningPhase from "@/components/game/phases/EveningPhase";
 import NightPhase from "@/components/game/phases/NightPhase";
 import MorningPhase from "@/components/game/phases/MorningPhase";
+import ResultPhase from "@/components/game/phases/ResultPhase";
 import { submitVote } from "@/utils/VoteManager";
 import { finishEveningIfReady } from "@/utils/EveningManager";
 import { submitNightAction } from "@/utils/NightManager";
@@ -39,6 +40,19 @@ type DoctorResult = {
   targetId: string;
   isHuman: boolean;
 } | null;
+type GameLogEntry = {
+  id: string;
+  day: number;
+  time: string;
+  message: string;
+};
+type VoteHistoryDay = {
+  day: number;
+  votes: {
+    voterName: string;
+    targetName: string;
+  }[];
+};
 
 const roleNames: Record<string, string> = {
   crew: "乗員",
@@ -99,6 +113,13 @@ export default function GamePage() {
     useState<EngineerResultMap>({});
   const [doctorResults, setDoctorResults] =
     useState<DoctorResult>(null);
+  const [winner, setWinner] = useState("");
+  const [gameLogs, setGameLogs] = useState<
+    GameLogEntry[]
+  >([]);
+  const [voteHistory, setVoteHistory] = useState<
+    VoteHistoryDay[]
+  >([]);
   const [voteError, setVoteError] = useState("");
   const [isVoteSubmitting, setIsVoteSubmitting] =
     useState(false);
@@ -126,6 +147,29 @@ export default function GamePage() {
       setBugKilled(room.bugKilled ?? false);
       setEngineerResults(room.engineerResults ?? {});
       setDoctorResults(room.doctorResults ?? null);
+      setWinner(room.winner ?? "");
+
+      const logs = Object.values(
+        room.gameLogs ?? {}
+      ) as GameLogEntry[];
+
+      setGameLogs(
+        logs.sort((a, b) => {
+          if (a.day !== b.day) {
+            return a.day - b.day;
+          }
+
+          return a.id.localeCompare(b.id);
+        })
+      );
+
+      const votes = Object.values(
+        room.voteHistory ?? {}
+      ) as VoteHistoryDay[];
+
+      setVoteHistory(
+        votes.sort((a, b) => a.day - b.day)
+      );
     });
 
     // プレイヤー監視
@@ -553,15 +597,12 @@ export default function GamePage() {
 
       case "result":
         return (
-          <div className="text-center py-20">
-            <h2 className="text-4xl font-bold">
-              ゲーム終了
-            </h2>
-
-            <p className="mt-6 text-xl">
-              勝敗を判定しています。
-            </p>
-          </div>
+          <ResultPhase
+            players={players}
+            winner={winner}
+            logs={gameLogs}
+            voteHistory={voteHistory}
+          />
         );
 
       default:

@@ -152,6 +152,13 @@ async function finishVote(
     }));
 
   const day = room.day ?? 1;
+  const time = new Date().toLocaleTimeString(
+    "ja-JP",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
   const voteHistory = Object.entries(votes).map(
     ([voterId, targetId]) => ({
       voterId,
@@ -165,7 +172,11 @@ async function finishVote(
     })
   );
 
-  await update(ref(db), {
+  const gnosiaStillAlive = remainingPlayers.some(
+    (player) => player.role === "gnosia"
+  );
+  const gameEnded = !gnosiaStillAlive;
+  const updates: Record<string, unknown> = {
     [`rooms/${roomCode}/players/${exiledPlayer.id}/alive`]:
       false,
     [`rooms/${roomCode}/lastEliminatedPlayerId`]:
@@ -177,8 +188,32 @@ async function finishVote(
     },
     [`rooms/${roomCode}/votes`]: null,
     [`rooms/${roomCode}/eveningChats`]: null,
-    [`rooms/${roomCode}/phase`]: "sleep",
-  });
+    [`rooms/${roomCode}/gameLogs/vote-${day}`]: {
+      id: `vote-${day}`,
+      day,
+      time,
+      message: `${exiledPlayer.name} がコールドスリープになりました。`,
+    },
+    [`rooms/${roomCode}/phase`]: gameEnded
+      ? "result"
+      : "sleep",
+  };
 
-  await createEveningGroups(roomCode, voteResults);
+  if (gameEnded) {
+    updates[`rooms/${roomCode}/winner`] = "crew";
+    updates[`rooms/${roomCode}/gameLogs/result-${day}`] =
+      {
+        id: `result-${day}`,
+        day,
+        time,
+        message:
+          "グノーシアが全員コールドスリープしたため、乗員陣営の勝利です。",
+      };
+  }
+
+  await update(ref(db), updates);
+
+  if (!gameEnded) {
+    await createEveningGroups(roomCode, voteResults);
+  }
 }

@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import type { Player } from "@/types/player";
+import GameLog from "../result/GameLog";
+import VoteHistory from "../result/VoteHistory";
 
 type PlayerWithId = Player & {
   id: string;
@@ -10,6 +12,19 @@ type PlayerWithId = Player & {
 type Props = {
   players: PlayerWithId[];
   winner: string;
+  logs: {
+    id: string;
+    day: number;
+    time: string;
+    message: string;
+  }[];
+  voteHistory: {
+    day: number;
+    votes: {
+      voterName: string;
+      targetName: string;
+    }[];
+  }[];
 };
 
 const roleNames: Record<string, string> = {
@@ -32,6 +47,8 @@ const winnerNames: Record<string, string> = {
 export default function ResultPhase({
   players,
   winner,
+  logs,
+  voteHistory,
 }: Props) {
   return (
     <div className="max-w-6xl mx-auto">
@@ -102,6 +119,10 @@ export default function ResultPhase({
         ))}
 
       </div>
+
+      <GameLog logs={logs} />
+
+      <VoteHistory history={voteHistory} />
 
       <div className="mt-12 text-center">
 
