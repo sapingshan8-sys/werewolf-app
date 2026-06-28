@@ -34,18 +34,6 @@ export async function submitNightAction(
     return;
   }
 
-  await update(
-    ref(
-      db,
-      `rooms/${roomCode}/nightActions/${player.id}`
-    ),
-    {
-      role: player.role ?? "crew",
-      targetId: targetId ?? null,
-      finished: true,
-    }
-  );
-
   const roomSnap = await get(
     ref(db, `rooms/${roomCode}`)
   );
@@ -56,6 +44,23 @@ export async function submitNightAction(
     return;
   }
 
+  const actionTargetId =
+    player.role === "gnosia"
+      ? room.gnosiaAttackTargetId ?? targetId ?? null
+      : targetId ?? null;
+
+  await update(
+    ref(
+      db,
+      `rooms/${roomCode}/nightActions/${player.id}`
+    ),
+    {
+      role: player.role ?? "crew",
+      targetId: actionTargetId,
+      finished: true,
+    }
+  );
+
   const players: PlayerWithId[] = Object.entries(
     room.players ?? {}
   ).map(([id, value]) => ({
@@ -63,8 +68,14 @@ export async function submitNightAction(
     ...(value as Player),
   }));
 
-  const actions: Record<string, NightAction> =
-    room.nightActions ?? {};
+  const actions: Record<string, NightAction> = {
+    ...(room.nightActions ?? {}),
+    [player.id]: {
+      role: player.role ?? "crew",
+      targetId: actionTargetId ?? undefined,
+      finished: true,
+    },
+  };
 
   const allFinished = getAlivePlayers(players).every(
     (alivePlayer) =>
@@ -313,6 +324,7 @@ export async function executeNight(
     ref(db, `rooms/${roomCode}`),
     {
       nightActions: null,
+      gnosiaAttackTargetId: null,
     }
   );
 

@@ -108,6 +108,8 @@ export default function GamePage() {
   const [votes, setVotes] = useState<VoteMap>({});
   const [nightActions, setNightActions] =
     useState<NightActionMap>({});
+  const [gnosiaAttackTargetId, setGnosiaAttackTargetId] =
+    useState("");
   const [attackedPlayerId, setAttackedPlayerId] =
     useState("");
   const [protectedSuccess, setProtectedSuccess] =
@@ -147,6 +149,9 @@ export default function GamePage() {
       );
       setVotes(room.votes ?? {});
       setNightActions(room.nightActions ?? {});
+      setGnosiaAttackTargetId(
+        room.gnosiaAttackTargetId ?? ""
+      );
       setAttackedPlayerId(room.attackedPlayerId ?? "");
       setProtectedSuccess(
         room.protectedSuccess ?? false
@@ -242,6 +247,14 @@ export default function GamePage() {
   const previousVoteHistory = voteHistory.filter(
     (history) => history.day < day
   );
+  const knownPartners = players.filter(
+    (player) =>
+      player.id !== myPlayerId &&
+      ((me?.role === "gnosia" &&
+        player.role === "gnosia") ||
+        (me?.role === "guardDuty" &&
+          player.role === "guardDuty"))
+  );
 
   const nextPhase = async () => {
     const currentIndex = phaseOrder.indexOf(phase);
@@ -312,6 +325,14 @@ export default function GamePage() {
     );
   };
 
+  const selectGnosiaAttackTarget = async (
+    targetId: string
+  ) => {
+    await update(ref(db, `rooms/${roomCode}`), {
+      gnosiaAttackTargetId: targetId,
+    });
+  };
+
   const finishMorning = async () => {
     await update(ref(db, `rooms/${roomCode}`), {
       phase: "discussion",
@@ -347,6 +368,49 @@ export default function GamePage() {
             <p className="text-3xl text-blue-600 font-bold mt-4">
               {roleNames[me.role ?? ""] ?? "？？？"}
             </p>
+
+            {(me.role === "gnosia" ||
+              me.role === "guardDuty") && (
+              <div className="mt-8 rounded-xl border bg-gray-50 p-5">
+                <h3 className="text-xl font-bold mb-4">
+                  相方
+                </h3>
+
+                {knownPartners.length === 0 ? (
+                  <p className="text-gray-600">
+                    相方はいません。
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    {knownPartners.map((partner) => (
+                      <div
+                        key={partner.id}
+                        className="rounded-lg border bg-white p-3 text-center"
+                      >
+                        <Image
+                          src={
+                            partner.character
+                              ? `/characters/${partner.character}.png`
+                              : "/characters/question.png"
+                          }
+                          alt={
+                            partner.character ??
+                            "未選択"
+                          }
+                          width={100}
+                          height={100}
+                          className="mx-auto rounded-lg"
+                        />
+
+                        <p className="mt-2 font-bold">
+                          {partner.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
           </div>
         );
@@ -523,11 +587,17 @@ export default function GamePage() {
 
         return (
           <NightPhase
+            roomCode={roomCode}
+            day={day}
             myPlayer={me}
             players={players}
             lastEliminatedPlayer={lastEliminatedPlayer}
             alreadyFinished={
               nightActions[myPlayerId]?.finished === true
+            }
+            gnosiaAttackTargetId={gnosiaAttackTargetId}
+            onSelectGnosiaAttackTarget={
+              selectGnosiaAttackTarget
             }
             onSubmitAction={submitMyNightAction}
           />

@@ -1,10 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  onValue,
+  push,
+  ref,
+  set,
+} from "firebase/database";
+import { db } from "@/lib/firebase";
 
 import Timer from "../common/Timer";
 import WaitingOverlay from "../evening/WaitingOverlay";
+import ChatInput from "../evening/ChatInput";
 
 import type { Player } from "@/types/player";
 
@@ -12,11 +20,25 @@ type PlayerWithId = Player & {
   id: string;
 };
 
+type Message = {
+  id: string;
+  playerId: string;
+  playerName: string;
+  text: string;
+  createdAt: number;
+};
+
 type Props = {
+  roomCode: string;
+  day: number;
   myPlayer: PlayerWithId;
   players: PlayerWithId[];
   lastEliminatedPlayer?: PlayerWithId;
   alreadyFinished?: boolean;
+  gnosiaAttackTargetId?: string;
+  onSelectGnosiaAttackTarget: (
+    targetId: string
+  ) => Promise<void>;
   onSubmitAction: (
     targetId?: string
   ) => Promise<void>;
@@ -34,10 +56,14 @@ const roleNames: Record<string, string> = {
 };
 
 export default function NightPhase({
+  roomCode,
+  day,
   myPlayer,
   players,
   lastEliminatedPlayer,
   alreadyFinished = false,
+  gnosiaAttackTargetId = "",
+  onSelectGnosiaAttackTarget,
   onSubmitAction,
 }: Props) {
   const [selectedId, setSelectedId] =
@@ -46,6 +72,9 @@ export default function NightPhase({
     useState(alreadyFinished);
   const [errorMessage, setErrorMessage] =
     useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isChatSending, setIsChatSending] =
+    useState(false);
 
   const alivePlayers = players.filter(
     (player) => player.alive !== false
@@ -58,6 +87,79 @@ export default function NightPhase({
         player.role === "gnosia"
       )
   );
+  const displayedSelectedId =
+    myPlayer.role === "gnosia"
+      ? gnosiaAttackTargetId
+      : selectedId;
+
+  useEffect(() => {
+    if (myPlayer.role !== "gnosia") {
+      return;
+    }
+
+    const messagesRef = ref(
+      db,
+      `rooms/${roomCode}/gnosiaChats/${day}/messages`
+    );
+
+    const unsubscribe = onValue(messagesRef, (snapshot) => {
+      const data = snapshot.val();
+
+      if (!data) {
+        setMessages([]);
+        return;
+      }
+
+      const list: Message[] = Object.entries(data).map(
+        ([id, value]) => ({
+          id,
+          ...(value as Omit<Message, "id">),
+        })
+      );
+
+      list.sort((a, b) => a.createdAt - b.createdAt);
+
+      setMessages(list);
+    });
+
+    return () => unsubscribe();
+  }, [roomCode, day, myPlayer.role]);
+
+  const sendGnosiaMessage = async (text: string) => {
+    const trimmedText = text.trim();
+
+    if (trimmedText === "") {
+      return;
+    }
+
+    setIsChatSending(true);
+
+    try {
+      const messageRef = push(
+        ref(
+          db,
+          `rooms/${roomCode}/gnosiaChats/${day}/messages`
+        )
+      );
+
+      await set(messageRef, {
+        playerId: myPlayer.id,
+        playerName: myPlayer.name,
+        text: trimmedText,
+        createdAt: Date.now(),
+      });
+    } finally {
+      setIsChatSending(false);
+    }
+  };
+
+  const selectTarget = async (targetId: string) => {
+    setSelectedId(targetId);
+
+    if (myPlayer.role === "gnosia") {
+      await onSelectGnosiaAttackTarget(targetId);
+    }
+  };
 
   const finishNight = async (
     targetId?: string
@@ -77,14 +179,19 @@ export default function NightPhase({
   };
 
   const submitSelectedTarget = async () => {
-    if (!selectedId) {
+    const targetId =
+      myPlayer.role === "gnosia"
+        ? gnosiaAttackTargetId
+        : selectedId;
+
+    if (!targetId) {
       setErrorMessage(
         "対象を選択してください。"
       );
       return;
     }
 
-    await finishNight(selectedId);
+    await finishNight(targetId);
   };
 
   const renderTargetGrid = (
@@ -105,10 +212,10 @@ export default function NightPhase({
           <button
             key={player.id}
             onClick={() =>
-              setSelectedId(player.id)
+              selectTarget(player.id)
             }
             className={`border rounded-xl p-4 text-center transition ${
-              selectedId === player.id
+              displayedSelectedId === player.id
                 ? "ring-4 ring-indigo-400"
                 : "hover:bg-indigo-50"
             }`}
@@ -140,6 +247,52 @@ export default function NightPhase({
           {buttonLabel}
         </button>
       </div>
+    </div>
+  );
+
+  const renderGnosiaChat = () => (
+    <div className="mb-8 border rounded-xl p-6">
+      <h3 className="text-xl font-bold mb-4">
+        グノーシア相談チャット
+      </h3>
+
+      <div className="border rounded-lg bg-gray-50 h-64 overflow-y-auto p-4">
+        {messages.length === 0 ? (
+          <p className="text-gray-500">
+            まだメッセージはありません。
+          </p>
+        ) : (
+          messages.map((message) => (
+            <div
+              key={message.id}
+              className="mb-4"
+            >
+              <p className="font-bold text-red-600">
+                {message.playerName}
+              </p>
+
+              <p className="ml-3 break-words">
+                {message.text}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+
+      <ChatInput
+        onSend={sendGnosiaMessage}
+        disabled={isChatSending || waiting}
+      />
+    </div>
+  );
+
+  const renderGnosiaAbility = () => (
+    <div>
+      {renderGnosiaChat()}
+      {renderTargetGrid(
+        "グノーシア全員で共有する襲撃対象を選択してください。",
+        "この襲撃対象で夜行動を終了する"
+      )}
     </div>
   );
 
@@ -194,10 +347,7 @@ export default function NightPhase({
         );
 
       case "gnosia":
-        return renderTargetGrid(
-          "襲撃するプレイヤーを選択してください。",
-          "襲撃対象を決定する"
-        );
+        return renderGnosiaAbility();
 
       default:
         return (
@@ -234,7 +384,13 @@ export default function NightPhase({
 
       <Timer
         initialSeconds={60}
-        onFinish={() => finishNight(selectedId)}
+        onFinish={() =>
+          finishNight(
+            myPlayer.role === "gnosia"
+              ? gnosiaAttackTargetId
+              : selectedId
+          )
+        }
       />
 
       <div className="border rounded-xl p-6 mt-8">

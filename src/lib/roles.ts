@@ -92,10 +92,10 @@ export function getRoles(playerCount: number): string[] {
         "crew",
         "crew",
         "crew",
+        "crew",
         "engineer",
         "doctor",
         "guardianAngel",
-        "guardDuty",
         "acFollower",
         "gnosia",
       ];
@@ -104,10 +104,10 @@ export function getRoles(playerCount: number): string[] {
       return [
         "crew",
         "crew",
-        "crew",
         "engineer",
         "doctor",
         "guardianAngel",
+        "guardDuty",
         "guardDuty",
         "acFollower",
         "bug",

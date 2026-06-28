@@ -40,12 +40,12 @@ export default function VoteHistory({
 
       <div className="space-y-8">
 
-        {history.map((dayHistory) => (
+        {history.map((dayHistory, index) => (
 
-          <div key={dayHistory.day}>
+          <div key={`${dayHistory.day}-${index}`}>
 
             <h3 className="text-xl font-bold mb-3">
-              {dayHistory.day}日目
+              {index + 1}回目の投票
             </h3>
 
             <table className="w-full border-collapse">

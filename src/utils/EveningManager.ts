@@ -95,6 +95,7 @@ export async function startNight(
     {
       phase: "night",
       nightActions: null,
+      gnosiaAttackTargetId: null,
     }
   );
 }

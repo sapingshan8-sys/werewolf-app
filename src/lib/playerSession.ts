@@ -28,3 +28,15 @@ export function setPlayerSession(
   localStorage.setItem("roomCode", roomCode);
   localStorage.setItem("playerId", playerId);
 }
+
+export function clearPlayerSession() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  sessionStorage.removeItem("roomCode");
+  sessionStorage.removeItem("playerId");
+
+  localStorage.removeItem("roomCode");
+  localStorage.removeItem("playerId");
+}

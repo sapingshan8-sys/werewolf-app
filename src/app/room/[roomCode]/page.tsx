@@ -13,7 +13,10 @@ import {
   type RoleCounts,
 } from "@/lib/roles";
 import { shuffle } from "@/lib/shuffle";
-import { getPlayerSession } from "@/lib/playerSession";
+import {
+  clearPlayerSession,
+  getPlayerSession,
+} from "@/lib/playerSession";
 import type { Player } from "@/types/player";
 
 type PlayerWithId = Player & {
@@ -108,6 +111,13 @@ export default function RoomPage() {
   );
   const roleTotalMatchesPlayers =
     roleTotal === players.length;
+  const guardDutyCount =
+    roleCounts.guardDuty ?? 0;
+  const guardDutyCountIsValid =
+    guardDutyCount === 0 || guardDutyCount === 2;
+  const roleSettingsAreValid =
+    roleTotalMatchesPlayers &&
+    guardDutyCountIsValid;
 
   const changeRoleCount = (
     role: string,
@@ -127,6 +137,43 @@ export default function RoomPage() {
     router.push("/character-select");
   };
 
+  const leaveRoom = async () => {
+    if (!myPlayerId) {
+      router.push("/");
+      return;
+    }
+
+    const remainingPlayers = players.filter(
+      (player) => player.id !== myPlayerId
+    );
+    const nextHostId =
+      remainingPlayers[0]?.id ?? null;
+
+    const updates: Record<string, unknown> = {};
+
+    if (remainingPlayers.length === 0) {
+      updates[`rooms/${roomCode}`] = null;
+    } else {
+      updates[
+        `rooms/${roomCode}/players/${myPlayerId}`
+      ] = null;
+
+      if (myPlayerId === hostId) {
+        updates[`rooms/${roomCode}/hostId`] =
+          nextHostId;
+      }
+    }
+
+    try {
+      await update(ref(db), updates);
+      clearPlayerSession();
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+      alert("退室に失敗しました");
+    }
+  };
+
   // ゲーム開始
   const startGame = async () => {
     try {
@@ -141,6 +188,11 @@ export default function RoomPage() {
 
       if ((roleCounts.gnosia ?? 0) === 0) {
         alert("グノーシアは1人以上必要です");
+        return;
+      }
+
+      if (!guardDutyCountIsValid) {
+        alert("留守番は0人または2人にしてください");
         return;
       }
 
@@ -172,6 +224,8 @@ export default function RoomPage() {
         roleCounts,
         votes: null,
         nightActions: null,
+        gnosiaAttackTargetId: null,
+        gnosiaChats: null,
         discussionChats: null,
         eveningChats: null,
         lastEliminatedPlayerId: null,
@@ -198,6 +252,15 @@ export default function RoomPage() {
       <h1 className="text-3xl font-bold mb-6">
         ルーム：{roomCode}
       </h1>
+
+      <div className="mb-6">
+        <button
+          onClick={leaveRoom}
+          className="rounded bg-gray-700 px-4 py-2 text-white hover:bg-gray-800"
+        >
+          退室して最初に戻る
+        </button>
+      </div>
 
       <h2 className="text-xl font-semibold mb-4">
         参加者一覧（{players.length}人）
@@ -283,6 +346,12 @@ export default function RoomPage() {
           >
             役職合計: {roleTotal} / 参加者: {players.length}
           </p>
+
+          {!guardDutyCountIsValid && (
+            <p className="mt-3 font-semibold text-red-600">
+              留守番は0人または2人にしてください。
+            </p>
+          )}
         </div>
       )}
 
@@ -298,7 +367,7 @@ export default function RoomPage() {
       {myPlayerId === hostId && allReady && (
         <button
           onClick={startGame}
-          disabled={!roleTotalMatchesPlayers}
+          disabled={!roleSettingsAreValid}
           className="bg-green-600 disabled:bg-gray-400 text-white px-4 py-2 rounded"
         >
           ゲーム開始
