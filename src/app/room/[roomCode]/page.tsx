@@ -264,6 +264,7 @@ export default function RoomPage() {
         votes: null,
         voteStage: null,
         runoffCandidateIds: null,
+        nextPhaseRequests: null,
         nightActions: null,
         gnosiaAttackTargetId: null,
         gnosiaChats: null,

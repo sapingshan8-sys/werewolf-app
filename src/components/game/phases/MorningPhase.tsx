@@ -29,6 +29,8 @@ type Props = {
   onFinish?: () => void;
 
   canProceed?: boolean;
+  proceedApprovalText?: string;
+  hasRequestedProceed?: boolean;
 };
 
 export default function MorningPhase({
@@ -37,6 +39,8 @@ export default function MorningPhase({
   doctorResult,
   onFinish,
   canProceed = false,
+  proceedApprovalText = "",
+  hasRequestedProceed = false,
 }: Props) {
   const finishMorning = () => {
     onFinish?.();
@@ -112,6 +116,7 @@ export default function MorningPhase({
             <div className="absolute bottom-[-5rem] right-4 z-20">
               <button
                 onClick={finishMorning}
+                disabled={hasRequestedProceed}
                 className="relative h-28 w-56 p-1 text-white transition hover:translate-x-[-2px]"
               >
                 <span className="absolute inset-0 bg-white/86 shadow-[5px_5px_0_rgba(255,255,255,0.14)] [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
@@ -121,13 +126,18 @@ export default function MorningPhase({
                   NEXT
                 </span>
                 <span className="relative z-10 block pl-16 pt-6 text-4xl font-light tracking-[0.08em]">
-                  次へ
+                  {hasRequestedProceed ? "待機中" : "次へ"}
+                  {proceedApprovalText && (
+                    <span className="block text-base">
+                      {proceedApprovalText}
+                    </span>
+                  )}
                 </span>
               </button>
             </div>
           ) : (
             <p className="absolute bottom-[-4rem] right-4 text-sm tracking-[0.12em] text-white/72">
-              ホストが議論フェーズへ進めるまでお待ちください。
+              過半数が次へ進むまでお待ちください。
             </p>
           )}
         </section>

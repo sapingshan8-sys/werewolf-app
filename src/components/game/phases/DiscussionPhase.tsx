@@ -50,6 +50,8 @@ type Props = {
   runoffCandidates?: PlayerWithId[];
   canProceed?: boolean;
   onProceed?: () => Promise<void> | void;
+  proceedApprovalText?: string;
+  hasRequestedProceed?: boolean;
 };
 
 export default function DiscussionPhase({
@@ -64,6 +66,8 @@ export default function DiscussionPhase({
   runoffCandidates = [],
   canProceed = false,
   onProceed,
+  proceedApprovalText = "",
+  hasRequestedProceed = false,
 }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
@@ -169,6 +173,7 @@ export default function DiscussionPhase({
           <button
             type="button"
             onClick={onProceed}
+            disabled={hasRequestedProceed}
             className="group absolute right-2 top-0 z-50 h-20 w-48 p-1 text-white transition hover:translate-x-[-2px]"
           >
             <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.26)] [clip-path:polygon(22%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
@@ -178,7 +183,12 @@ export default function DiscussionPhase({
               NEXT
             </span>
             <span className="relative z-10 block pl-14 pr-4 pt-4 text-2xl font-light leading-tight drop-shadow">
-              次へ
+              {hasRequestedProceed ? "待機中" : "次へ"}
+              {proceedApprovalText && (
+                <span className="block text-sm">
+                  {proceedApprovalText}
+                </span>
+              )}
             </span>
           </button>
         )}

@@ -5,9 +5,11 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import {
+  get,
   ref,
   onValue,
   runTransaction,
+  set,
   update,
 } from "firebase/database";
 import type { Player } from "@/types/player";
@@ -74,6 +76,10 @@ type EveningChatRoom = {
   members?: string[];
   roomName?: string;
 };
+type NextPhaseRequestMap = Record<
+  string,
+  Record<string, true>
+>;
 
 const roleNames: Record<string, string> = {
   crew: "乗員",
@@ -170,6 +176,8 @@ export default function GamePage() {
   const [eveningChats, setEveningChats] = useState<
     Record<string, EveningChatRoom>
   >({});
+  const [nextPhaseRequests, setNextPhaseRequests] =
+    useState<NextPhaseRequestMap>({});
   const [voteError, setVoteError] = useState("");
   const [isVoteSubmitting, setIsVoteSubmitting] =
     useState(false);
@@ -219,6 +227,7 @@ export default function GamePage() {
       setDoctorResults(room.doctorResults ?? null);
       setWinner(room.winner ?? "");
       setEveningChats(room.eveningChats ?? {});
+      setNextPhaseRequests(room.nextPhaseRequests ?? {});
 
       const logs = Object.values(
         room.gameLogs ?? {}
@@ -356,6 +365,22 @@ export default function GamePage() {
     lastEliminatedPlayers.length > 0
       ? `${coldSleepNames}がコールドスリープしました`
       : "本日は誰もコールドスリープしませんでした";
+  const nextPhaseRequestKey = `${phase}_${day}_${voteStage}`;
+  const nextPhaseEligiblePlayers = players;
+  const nextPhaseThreshold =
+    Math.floor(nextPhaseEligiblePlayers.length / 2) + 1;
+  const currentNextPhaseRequests =
+    nextPhaseRequests[nextPhaseRequestKey] ?? {};
+  const nextPhaseApprovalCount =
+    nextPhaseEligiblePlayers.filter(
+      (player) => currentNextPhaseRequests[player.id]
+    ).length;
+  const hasRequestedNextPhase =
+    Boolean(currentNextPhaseRequests[myPlayerId]);
+  const nextPhaseApprovalText = `${Math.min(
+    nextPhaseApprovalCount,
+    nextPhaseThreshold
+  )}/${nextPhaseThreshold}`;
 
   const nextPhase = async () => {
     const currentIndex = phaseOrder.indexOf(phase);
@@ -370,6 +395,7 @@ export default function GamePage() {
 
     await update(ref(db, `rooms/${roomCode}`), {
       phase: next,
+      nextPhaseRequests: null,
       ...(next === "vote"
         ? {
             votes: null,
@@ -479,7 +505,42 @@ export default function GamePage() {
   const finishMorning = async () => {
     await update(ref(db, `rooms/${roomCode}`), {
       phase: "discussion",
+      nextPhaseRequests: null,
     });
+  };
+
+  const requestPhaseAdvance = async (
+    advance: () => Promise<void>
+  ) => {
+    if (!me || nextPhaseEligiblePlayers.length === 0) {
+      return;
+    }
+
+    const requestPath = `rooms/${roomCode}/nextPhaseRequests/${nextPhaseRequestKey}`;
+
+    await set(ref(db, `${requestPath}/${myPlayerId}`), true);
+
+    const snapshot = await get(ref(db, requestPath));
+    const requests = (snapshot.val() ?? {}) as Record<
+      string,
+      true
+    >;
+    const approvalCount =
+      nextPhaseEligiblePlayers.filter(
+        (player) => requests[player.id]
+      ).length;
+
+    if (approvalCount >= nextPhaseThreshold) {
+      await advance();
+    }
+  };
+
+  const requestNextPhase = async () => {
+    await requestPhaseAdvance(nextPhase);
+  };
+
+  const requestMorningFinish = async () => {
+    await requestPhaseAdvance(finishMorning);
   };
 
   const restartInSameRoom = async () => {
@@ -490,6 +551,7 @@ export default function GamePage() {
       [`rooms/${roomCode}/votes`]: null,
       [`rooms/${roomCode}/voteStage`]: null,
       [`rooms/${roomCode}/runoffCandidateIds`]: null,
+      [`rooms/${roomCode}/nextPhaseRequests`]: null,
       [`rooms/${roomCode}/nightActions`]: null,
       [`rooms/${roomCode}/gnosiaAttackTargetId`]: null,
       [`rooms/${roomCode}/gnosiaChats`]: null,
@@ -645,20 +707,18 @@ export default function GamePage() {
               </section>
             </div>
 
-            {myPlayerId === hostId ? (
-              <div className="absolute bottom-8 right-12 z-20">
-                <button
-                  onClick={nextPhase}
-                  className="border-4 border-white/88 bg-[#727681]/82 px-10 py-5 text-3xl font-light tracking-[0.08em] text-white shadow-[4px_4px_0_rgba(0,0,0,0.18)] transition hover:bg-[#626975]"
-                >
-                  次へ
-                </button>
-              </div>
-            ) : (
-              <p className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 border-2 border-white/72 bg-white/72 px-8 py-3 text-sm tracking-[0.12em] text-[#3e3b3b] shadow-[0_0_0_3px_rgba(255,255,255,0.38)]">
-                ホストが次のフェーズへ進めるまでお待ちください。
-              </p>
-            )}
+            <div className="absolute bottom-8 right-12 z-20">
+              <button
+                onClick={requestNextPhase}
+                disabled={hasRequestedNextPhase}
+                className="border-4 border-white/88 bg-[#727681]/82 px-10 py-5 text-3xl font-light tracking-[0.08em] text-white shadow-[4px_4px_0_rgba(0,0,0,0.18)] transition hover:bg-[#626975] disabled:bg-[#727681]/52 disabled:text-white/68"
+              >
+                {hasRequestedNextPhase ? "待機中" : "次へ"}
+                <span className="ml-4 text-lg">
+                  {nextPhaseApprovalText}
+                </span>
+              </button>
+            </div>
           </main>
         );
 
@@ -674,8 +734,10 @@ export default function GamePage() {
             voteHistory={previousVoteHistory}
             voteStage={voteStage}
             runoffCandidates={runoffCandidates}
-            canProceed={myPlayerId === hostId}
-            onProceed={nextPhase}
+            canProceed
+            onProceed={requestNextPhase}
+            proceedApprovalText={nextPhaseApprovalText}
+            hasRequestedProceed={hasRequestedNextPhase}
           />
         );
 
@@ -746,10 +808,10 @@ export default function GamePage() {
                   </div>
                 )}
 
-                {myPlayerId === hostId && (
-                  <div className="absolute bottom-[-5rem] right-4 z-20">
+                <div className="absolute bottom-[-5rem] right-4 z-20">
                 <button
-                  onClick={nextPhase}
+                  onClick={requestNextPhase}
+                  disabled={hasRequestedNextPhase}
                       className="relative h-28 w-56 p-1 text-white transition hover:translate-x-[-2px]"
                 >
                       <span className="absolute inset-0 bg-white/86 shadow-[5px_5px_0_rgba(255,255,255,0.14)] [clip-path:polygon(18%_0,100%_0,100%_70%,82%_100%,0_100%,0_34%)]" />
@@ -759,11 +821,15 @@ export default function GamePage() {
                         NEXT
                       </span>
                       <span className="relative z-10 block pl-16 pt-6 text-4xl font-light tracking-[0.08em]">
-                        次へ
+                        {hasRequestedNextPhase
+                          ? "待機中"
+                          : "次へ"}
+                        <span className="block text-base">
+                          {nextPhaseApprovalText}
+                        </span>
                       </span>
                 </button>
               </div>
-            )}
               </section>
             </div>
           </main>
@@ -914,11 +980,11 @@ export default function GamePage() {
                 : undefined
             }
             onFinish={
-              myPlayerId === hostId
-                ? finishMorning
-                : undefined
+              requestMorningFinish
             }
-            canProceed={myPlayerId === hostId}
+            canProceed
+            proceedApprovalText={nextPhaseApprovalText}
+            hasRequestedProceed={hasRequestedNextPhase}
           />
         );
 
@@ -967,23 +1033,6 @@ export default function GamePage() {
             あなたは{myEliminationLabel}。
             以降の投票や夜行動には参加せず、進行を閲覧します。
           </p>
-        </div>
-      )}
-
-      {myPlayerId === hostId &&
-        phase !== "discussion" &&
-        phase !== "vote" &&
-        phase !== "sleep" &&
-        phase !== "evening" &&
-        phase !== "night" &&
-        phase !== "morning" && (
-        <div className="mb-8">
-          <button
-            onClick={nextPhase}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-          >
-            次のフェーズへ
-          </button>
         </div>
       )}
 
