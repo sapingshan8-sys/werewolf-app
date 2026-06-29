@@ -47,6 +47,37 @@ const winnerNames: Record<string, string> = {
   bug: "バグ",
 };
 
+const winnerPanelStyles: Record<
+  string,
+  {
+    panel: string;
+    label: string;
+    title: string;
+  }
+> = {
+  crew: {
+    panel:
+      "border-white/45 bg-[#d8eff8]/38 shadow-[0_0_0_3px_rgba(255,255,255,0.26),0_22px_48px_rgba(35,86,104,0.2)]",
+    label: "text-[#6f5d4c]",
+    title:
+      "text-[#174b84] drop-shadow-[0_0_7px_rgba(255,255,255,0.88)]",
+  },
+  gnosia: {
+    panel:
+      "border-red-200/55 bg-[#8f242a]/88 shadow-[0_0_0_3px_rgba(255,210,210,0.22),0_22px_48px_rgba(80,12,18,0.34)]",
+    label: "text-red-100/82",
+    title:
+      "text-white drop-shadow-[0_0_8px_rgba(255,180,180,0.42)]",
+  },
+  bug: {
+    panel:
+      "border-white/28 bg-black/82 shadow-[0_0_0_3px_rgba(255,255,255,0.14),0_22px_48px_rgba(0,0,0,0.42)]",
+    label: "text-white/66",
+    title:
+      "text-white drop-shadow-[0_0_9px_rgba(170,220,255,0.36)]",
+  },
+};
+
 const eliminationLabels: Record<string, string> = {
   coldSleep: "コールドスリープ",
   attack: "消滅",
@@ -61,6 +92,14 @@ export default function ResultPhase({
   canRestart = false,
   onRestart,
 }: Props) {
+  const winnerStyle =
+    winnerPanelStyles[winner] ??
+    winnerPanelStyles.crew;
+  const winnerText =
+    winnerNames[winner] !== undefined
+      ? `${winnerNames[winner]}の勝利です`
+      : "勝利陣営は未決定です";
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#9fcbd3] px-6 py-10 text-[#2e2c2c]">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(210,238,244,0.72)_0%,rgba(156,203,212,0.84)_40%,rgba(91,158,172,0.9)_100%)]" />
@@ -83,13 +122,19 @@ export default function ResultPhase({
           </p>
         </section>
 
-        <section className="mb-10 border border-white/45 bg-[#d8eff8]/38 p-8 text-center shadow-[0_0_0_3px_rgba(255,255,255,0.26),0_22px_48px_rgba(35,86,104,0.2)] backdrop-blur">
-          <p className="text-lg tracking-[0.24em] text-[#6f5d4c]">
+        <section
+          className={`mb-10 border p-8 text-center backdrop-blur ${winnerStyle.panel}`}
+        >
+          <p
+            className={`text-lg tracking-[0.24em] ${winnerStyle.label}`}
+          >
             勝利陣営
           </p>
 
-          <p className="mt-3 text-5xl font-light tracking-[0.12em] text-[#174b84] drop-shadow-[0_0_7px_rgba(255,255,255,0.88)]">
-            {winnerNames[winner] ?? "未決定"}
+          <p
+            className={`mt-3 text-5xl font-light tracking-[0.12em] ${winnerStyle.title}`}
+          >
+            {winnerText}
           </p>
         </section>
 

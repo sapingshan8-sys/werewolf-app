@@ -50,6 +50,7 @@ type GameLogEntry = {
   day: number;
   time: string;
   message: string;
+  order?: number;
 };
 type VoteHistoryDay = {
   day: number;
@@ -81,6 +82,26 @@ const phaseOrder = [
   "morning",
   "result",
 ];
+
+function getGameLogOrder(log: GameLogEntry) {
+  if (typeof log.order === "number") {
+    return log.order;
+  }
+
+  if (log.id.startsWith("vote-")) {
+    return 10;
+  }
+
+  if (log.id.startsWith("night-")) {
+    return 20;
+  }
+
+  if (log.id.startsWith("result-")) {
+    return 90;
+  }
+
+  return 50;
+}
 
 export default function GamePage() {
   const params = useParams();
@@ -181,6 +202,13 @@ export default function GamePage() {
         logs.sort((a, b) => {
           if (a.day !== b.day) {
             return a.day - b.day;
+          }
+
+          const orderDiff =
+            getGameLogOrder(a) - getGameLogOrder(b);
+
+          if (orderDiff !== 0) {
+            return orderDiff;
           }
 
           return a.id.localeCompare(b.id);

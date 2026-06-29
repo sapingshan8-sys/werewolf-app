@@ -284,32 +284,61 @@ export async function executeNight(
   updates[`rooms/${roomCode}/bugKilledIds`] =
     bugKilledIds;
 
-  if (gameEnded) {
-    const day = (
-      (
-        await get(
-          ref(
-            db,
-            `rooms/${roomCode}/day`
-          )
-        )
-      ).val() ?? 1
-    ) + 1;
-    const time = new Date().toLocaleTimeString(
-      "ja-JP",
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    );
+  const currentDay =
+    (
+      await get(
+        ref(db, `rooms/${roomCode}/day`)
+      )
+    ).val() ?? 1;
+  const logDay = currentDay + 1;
+  const time = new Date().toLocaleTimeString(
+    "ja-JP",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
 
+  if (attackedPlayerId) {
+    updates[
+      `rooms/${roomCode}/gameLogs/night-${logDay}-attack`
+    ] = {
+      id: `night-${logDay}-attack`,
+      day: logDay,
+      time,
+      order: 20,
+      message: `昨夜、${attackTargetPlayer?.name ?? "不明"} が消滅しました。`,
+    };
+  }
+
+  if (bugKilledIds.length > 0) {
+    const bugKilledNames = players
+      .filter((player) =>
+        bugKilledIds.includes(player.id)
+      )
+      .map((player) => player.name)
+      .join("、");
+
+    updates[
+      `rooms/${roomCode}/gameLogs/night-${logDay}-bug`
+    ] = {
+      id: `night-${logDay}-bug`,
+      day: logDay,
+      time,
+      order: 21,
+      message: `エンジニアの調査により、${bugKilledNames} がバグとして消滅しました。`,
+    };
+  }
+
+  if (gameEnded) {
     updates[`rooms/${roomCode}/winner`] =
       winResult.winner;
-    updates[`rooms/${roomCode}/gameLogs/result-${day}`] =
+    updates[`rooms/${roomCode}/gameLogs/result-${logDay}`] =
       {
-        id: `result-${day}`,
-        day,
+        id: `result-${logDay}`,
+        day: logDay,
         time,
+        order: 90,
         message: winResult.message,
       };
   }
@@ -336,17 +365,7 @@ export async function executeNight(
     ref(db, `rooms/${roomCode}`),
     {
       phase: gameEnded ? "result" : "morning",
-      day:
-        (
-          (
-            await get(
-              ref(
-                db,
-                `rooms/${roomCode}/day`
-              )
-            )
-          ).val() ?? 1
-        ) + 1,
+      day: logDay,
     }
   );
 }

@@ -291,6 +291,7 @@ async function finishVote(
           id: `vote-${day}-${stageKey}`,
           day,
           time,
+          order: 10,
           message:
             voteStage === "normal"
               ? `${candidateNames} が同票でした。再会議後、最多票の人物だけで再投票します。`
@@ -409,6 +410,7 @@ async function finishExileDecisionVote(
         id: `vote-${day}-exileDecision`,
         day,
         time,
+        order: 10,
         message:
           "コールドスリープ可否投票の結果、誰もコールドスリープしませんでした。",
       },
@@ -473,6 +475,7 @@ async function finishWithExiledPlayers(
       id: `vote-${historyKey}`,
       day,
       time,
+      order: 10,
       message: `${actionLabel}の結果、${exiledNames} がコールドスリープになりました。`,
     },
     [`rooms/${roomCode}/phase`]: gameEnded
@@ -497,6 +500,7 @@ async function finishWithExiledPlayers(
         id: `result-${day}`,
         day,
         time,
+        order: 90,
         message: winResult.message,
       };
   }
