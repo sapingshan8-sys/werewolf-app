@@ -18,6 +18,7 @@ import EveningPhase from "@/components/game/phases/EveningPhase";
 import NightPhase from "@/components/game/phases/NightPhase";
 import MorningPhase from "@/components/game/phases/MorningPhase";
 import ResultPhase from "@/components/game/phases/ResultPhase";
+import RoleRevealChat from "@/components/game/roleReveal/RoleRevealChat";
 import {
   submitExileDecisionVote,
   submitVote,
@@ -492,6 +493,7 @@ export default function GamePage() {
       [`rooms/${roomCode}/nightActions`]: null,
       [`rooms/${roomCode}/gnosiaAttackTargetId`]: null,
       [`rooms/${roomCode}/gnosiaChats`]: null,
+      [`rooms/${roomCode}/roleRevealChats`]: null,
       [`rooms/${roomCode}/discussionChats`]: null,
       [`rooms/${roomCode}/eveningChats`]: null,
       [`rooms/${roomCode}/lastEliminatedPlayerId`]: null,
@@ -624,6 +626,21 @@ export default function GamePage() {
                 )}
                 </div>
               </div>
+            )}
+
+            {(me.role === "gnosia" ||
+              me.role === "guardDuty") && (
+              <RoleRevealChat
+                roomCode={roomCode}
+                chatKey={me.role}
+                myPlayerId={myPlayerId}
+                myName={me.name}
+                title={
+                  me.role === "gnosia"
+                    ? "グノーシアチャット"
+                    : "留守番チャット"
+                }
+              />
             )}
               </section>
             </div>

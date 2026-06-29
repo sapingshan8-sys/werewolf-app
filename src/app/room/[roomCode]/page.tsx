@@ -267,6 +267,7 @@ export default function RoomPage() {
         nightActions: null,
         gnosiaAttackTargetId: null,
         gnosiaChats: null,
+        roleRevealChats: null,
         discussionChats: null,
         eveningChats: null,
         lastEliminatedPlayerId: null,
