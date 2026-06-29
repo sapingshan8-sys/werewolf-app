@@ -447,7 +447,7 @@ export default function NightPhase({
 
             <div className="relative z-10 p-8">
             <h3 className="mb-4 text-3xl font-light tracking-[0.14em]">
-              夜フェーズ
+              空間転移中
             </h3>
 
             <p className="text-xl text-white/88">
@@ -486,7 +486,7 @@ export default function NightPhase({
       <div className="mb-7 flex items-start justify-between gap-6">
         <div className={`relative inline-block px-12 py-4 pr-24 text-white shadow-[0_0_0_4px_rgba(255,255,255,0.78),4px_4px_0_rgba(0,0,0,0.24)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)] ${hasTargetAction ? currentTheme.titlePanel : "bg-white/40"}`}>
           <h2 className="text-5xl font-light tracking-[0.1em]">
-            {hasTargetAction ? currentTheme.title : "夜フェーズ"}
+            {hasTargetAction ? currentTheme.title : "空間転移中"}
           </h2>
           {hasTargetAction && (
             <span className="absolute right-8 top-0 text-5xl font-semibold italic text-white/22 [font-family:Georgia,Times_New_Roman,serif]">

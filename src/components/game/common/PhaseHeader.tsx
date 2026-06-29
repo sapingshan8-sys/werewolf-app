@@ -6,7 +6,7 @@ const phaseNames: Record<string, string> = {
   vote: "投票",
   sleep: "コールドスリープ",
   evening: "自由時間",
-  night: "夜",
+  night: "空間転移中",
   result: "ゲーム終了",
 };
 

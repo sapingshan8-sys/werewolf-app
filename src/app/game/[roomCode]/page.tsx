@@ -848,7 +848,7 @@ export default function GamePage() {
           return (
             <div className="py-16">
               <h2 className="text-4xl font-bold">
-                夜
+                空間転移中
               </h2>
 
               <p className="mt-6 text-xl text-gray-700">
