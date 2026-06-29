@@ -502,13 +502,13 @@ export default function GamePage() {
     switch (phase) {
       case "roleReveal":
         return (
-          <main className="relative min-h-screen overflow-hidden bg-[#d8eff8] px-8 py-8 text-[#2e2c2c]">
+          <main className="relative min-h-screen overflow-hidden bg-[#d8eff8] px-8 pb-36 pt-8 text-[#2e2c2c]">
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(220,246,255,0.96)_0%,rgba(189,227,238,0.9)_45%,rgba(235,239,238,0.96)_100%)]" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(255,255,255,0.8)_0%,transparent_28%),radial-gradient(circle_at_76%_70%,rgba(113,190,199,0.22)_0%,transparent_34%)]" />
             <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.05)_0px,rgba(255,255,255,0.05)_2px,transparent_2px,transparent_7px)]" />
 
-            <div className="relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-12">
-              <section className="w-[26rem] shrink-0 bg-white/78 p-6 shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.22)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_26%)]">
+            <div className="relative z-10 mx-auto flex min-h-[calc(100vh-11rem)] max-w-6xl items-center gap-12">
+              <section className="w-[26rem] shrink-0 bg-white/78 p-6 shadow-[0_0_0_4px_rgba(255,255,255,0.82),5px_5px_0_rgba(0,0,0,0.22)]">
                 <Image
                   src={`/characters/${me.character}.png`}
                   alt={me.character ?? ""}
@@ -524,16 +524,14 @@ export default function GamePage() {
               </section>
 
               <section className="min-w-0 flex-1">
-                <div className="mb-8 inline-block bg-white/88 px-10 py-4 pr-24 shadow-[0_0_0_4px_rgba(255,255,255,0.86),4px_4px_0_rgba(0,0,0,0.28)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)]">
+                <div className="mb-8 inline-block bg-white/88 px-10 py-4 shadow-[0_0_0_4px_rgba(255,255,255,0.86),4px_4px_0_rgba(0,0,0,0.22)]">
                   <h2 className="text-4xl font-light tracking-[0.16em]">
                     役職提示
                   </h2>
                 </div>
 
-                <div className="relative p-1 text-white">
-                  <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
-                  <div className="absolute inset-[5px] bg-[#727681]/82 [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
-                  <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+                <div className="relative border-4 border-white/88 bg-[#727681]/82 text-white shadow-[4px_4px_0_rgba(0,0,0,0.18)]">
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)]" />
 
                   <div className="relative z-10 px-12 py-10">
                     <p className="text-lg tracking-[0.28em] text-white/72">
@@ -548,9 +546,7 @@ export default function GamePage() {
 
             {(me.role === "gnosia" ||
               me.role === "guardDuty") && (
-              <div className="relative mt-8 p-1 text-white">
-                <div className="absolute inset-0 bg-white/82 shadow-[4px_4px_0_rgba(0,0,0,0.18)] [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_18%)]" />
-                <div className="absolute inset-[5px] bg-[#727681]/72 [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+              <div className="relative mt-8 border-4 border-white/82 bg-[#727681]/72 text-white shadow-[4px_4px_0_rgba(0,0,0,0.16)]">
                 <div className="relative z-10 p-6">
                 <h3 className="text-2xl font-light tracking-[0.16em]">
                   相方
@@ -565,7 +561,7 @@ export default function GamePage() {
                     {knownPartners.map((partner) => (
                       <div
                         key={partner.id}
-                        className="bg-white/72 p-3 text-center text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.72)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_30%)]"
+                        className="bg-white/72 p-3 text-center text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.72)]"
                       >
                         <Image
                           src={
@@ -596,24 +592,16 @@ export default function GamePage() {
             </div>
 
             {myPlayerId === hostId ? (
-              <div className="absolute bottom-12 right-12 z-20">
+              <div className="absolute bottom-8 right-12 z-20">
                 <button
                   onClick={nextPhase}
-                  className="relative h-24 w-52 p-1 text-white transition hover:translate-x-[-2px]"
+                  className="border-4 border-white/88 bg-[#727681]/82 px-10 py-5 text-3xl font-light tracking-[0.08em] text-white shadow-[4px_4px_0_rgba(0,0,0,0.18)] transition hover:bg-[#626975]"
                 >
-                  <span className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
-                  <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
-                  <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
-                  <span className="absolute bottom-4 left-5 h-7 w-16 border-2 border-white/90 text-sm leading-6 text-white/90">
-                    NEXT
-                  </span>
-                  <span className="relative z-10 block pl-14 pt-5 text-3xl font-light tracking-[0.08em]">
-                    次へ
-                  </span>
+                  次へ
                 </button>
               </div>
             ) : (
-              <p className="absolute bottom-12 right-12 z-20 bg-white/60 px-6 py-3 text-sm tracking-[0.12em] text-[#3e3b3b] shadow-[0_0_0_3px_rgba(255,255,255,0.72)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_30%)]">
+              <p className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 border-2 border-white/72 bg-white/72 px-8 py-3 text-sm tracking-[0.12em] text-[#3e3b3b] shadow-[0_0_0_3px_rgba(255,255,255,0.38)]">
                 ホストが次のフェーズへ進めるまでお待ちください。
               </p>
             )}
