@@ -144,8 +144,9 @@ export default function GamePage() {
     useState("");
   const [protectedSuccess, setProtectedSuccess] =
     useState(false);
-  const [bugKilled, setBugKilled] =
-    useState(false);
+  const [bugKilledIds, setBugKilledIds] = useState<
+    string[]
+  >([]);
   const [engineerResults, setEngineerResults] =
     useState<EngineerResultMap>({});
   const [doctorResults, setDoctorResults] =
@@ -201,7 +202,7 @@ export default function GamePage() {
       setProtectedSuccess(
         room.protectedSuccess ?? false
       );
-      setBugKilled(room.bugKilled ?? false);
+      setBugKilledIds(room.bugKilledIds ?? []);
       setEngineerResults(room.engineerResults ?? {});
       setDoctorResults(room.doctorResults ?? null);
       setWinner(room.winner ?? "");
@@ -284,8 +285,11 @@ export default function GamePage() {
       : lastEliminatedPlayer
         ? [lastEliminatedPlayer]
         : [];
-  const attackedPlayer = players.find(
-    (player) => player.id === attackedPlayerId
+  const eliminatedPlayerIds = Array.from(
+    new Set([attackedPlayerId, ...bugKilledIds].filter(Boolean))
+  );
+  const morningEliminatedPlayers = players.filter(
+    (player) => eliminatedPlayerIds.includes(player.id)
   );
   const myEngineerResult =
     engineerResults[myPlayerId];
@@ -842,16 +846,13 @@ export default function GamePage() {
       case "morning":
         return (
           <MorningPhase
-            attackedPlayer={
-              attackedPlayer
-                ? {
-                    name: attackedPlayer.name,
-                    character: attackedPlayer.character,
-                  }
-                : undefined
-            }
+            eliminatedPlayers={morningEliminatedPlayers.map(
+              (player) => ({
+                name: player.name,
+                character: player.character,
+              })
+            )}
             protectedSuccess={protectedSuccess}
-            bugKilled={bugKilled}
             engineerResult={
               me.role === "engineer" &&
               myEngineerResult &&

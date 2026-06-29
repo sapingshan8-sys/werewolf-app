@@ -15,14 +15,12 @@ type DoctorResult = {
 };
 
 type Props = {
-  attackedPlayer?: {
+  eliminatedPlayers?: {
     name: string;
     character?: string;
-  };
+  }[];
 
   protectedSuccess?: boolean;
-
-  bugKilled?: boolean;
 
   engineerResult?: EngineerResult;
 
@@ -34,8 +32,7 @@ type Props = {
 };
 
 export default function MorningPhase({
-  attackedPlayer,
-  bugKilled = false,
+  eliminatedPlayers = [],
   engineerResult,
   doctorResult,
   onFinish,
@@ -44,11 +41,14 @@ export default function MorningPhase({
   const finishMorning = () => {
     onFinish?.();
   };
+  const eliminationLine =
+    eliminatedPlayers.length > 0
+      ? `昨夜、${eliminatedPlayers
+          .map((player) => player.name)
+          .join("、")}が消滅しました`
+      : "昨夜は、誰も襲われませんでした";
   const resultLines = [
-    attackedPlayer
-      ? `昨夜、${attackedPlayer.name}が消滅しました`
-      : "昨夜は、誰も襲われませんでした",
-    bugKilled ? "バグが消滅しました" : "",
+    eliminationLine,
     engineerResult
       ? `調査の結果、${engineerResult.targetName}は${
           engineerResult.isGnosia
@@ -63,11 +63,11 @@ export default function MorningPhase({
       : "",
   ].filter(Boolean);
   const focusCharacter =
-    attackedPlayer?.character ??
+    eliminatedPlayers[0]?.character ??
     doctorResult?.targetCharacter ??
     engineerResult?.targetCharacter;
   const focusName =
-    attackedPlayer?.name ??
+    eliminatedPlayers[0]?.name ??
     doctorResult?.targetName ??
     engineerResult?.targetName ??
     "結果";
