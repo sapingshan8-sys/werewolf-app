@@ -26,6 +26,8 @@ type Props = {
       targetName: string;
     }[];
   }[];
+  canRestart?: boolean;
+  onRestart?: () => Promise<void> | void;
 };
 
 const roleNames: Record<string, string> = {
@@ -56,13 +58,15 @@ export default function ResultPhase({
   winner,
   logs,
   voteHistory,
+  canRestart = false,
+  onRestart,
 }: Props) {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#c8e2e6] px-6 py-10 text-[#2e2c2c]">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.82)_0%,rgba(204,228,231,0.68)_34%,rgba(132,190,199,0.72)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(70,132,150,0.18)_0%,rgba(255,255,255,0.45)_32%,rgba(255,255,255,0.5)_68%,rgba(73,137,150,0.22)_100%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-2/3 bg-[linear-gradient(180deg,rgba(255,255,255,0.78)_0%,rgba(255,255,255,0.2)_58%,rgba(255,255,255,0)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_4%,rgba(255,255,255,0.9)_0%,transparent_26%),radial-gradient(circle_at_88%_82%,rgba(41,126,153,0.16)_0%,transparent_32%)]" />
+    <main className="relative min-h-screen overflow-hidden bg-[#9fcbd3] px-6 py-10 text-[#2e2c2c]">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(210,238,244,0.72)_0%,rgba(156,203,212,0.84)_40%,rgba(91,158,172,0.9)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(40,105,126,0.24)_0%,rgba(226,245,249,0.24)_34%,rgba(229,246,249,0.22)_66%,rgba(43,107,126,0.28)_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-2/3 bg-[linear-gradient(180deg,rgba(238,250,252,0.46)_0%,rgba(238,250,252,0.12)_58%,rgba(238,250,252,0)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_4%,rgba(236,251,254,0.52)_0%,transparent_24%),radial-gradient(circle_at_88%_82%,rgba(17,94,122,0.2)_0%,transparent_32%)]" />
 
       <div className="relative z-10 mx-auto max-w-6xl">
         <section className="mb-12 text-center">
@@ -79,7 +83,7 @@ export default function ResultPhase({
           </p>
         </section>
 
-        <section className="mb-10 border border-white/70 bg-white/58 p-8 text-center shadow-[0_0_0_3px_rgba(255,255,255,0.48),0_22px_48px_rgba(65,113,128,0.18)] backdrop-blur">
+        <section className="mb-10 border border-white/45 bg-[#d8eff8]/38 p-8 text-center shadow-[0_0_0_3px_rgba(255,255,255,0.26),0_22px_48px_rgba(35,86,104,0.2)] backdrop-blur">
           <p className="text-lg tracking-[0.24em] text-[#6f5d4c]">
             勝利陣営
           </p>
@@ -98,7 +102,7 @@ export default function ResultPhase({
             {players.map((player) => (
               <div
                 key={player.id}
-                className="border border-white/70 bg-white/62 p-4 text-center shadow-[0_8px_24px_rgba(65,113,128,0.16)] backdrop-blur"
+                className="border border-white/45 bg-[#d8eff8]/36 p-4 text-center shadow-[0_8px_24px_rgba(35,86,104,0.18)] backdrop-blur"
               >
                 <Image
                   src={
@@ -145,20 +149,26 @@ export default function ResultPhase({
         </div>
 
         <div className="mt-12 text-center">
-          <button
-            onClick={() => location.reload()}
-            className="group px-8 py-2 text-[#6f5d4c] transition hover:text-[#264d72]"
-          >
-            <span className="block text-sm tracking-[0.28em] text-white/90 drop-shadow-[0_0_6px_rgba(255,255,255,0.9)]">
-              RESULT
-            </span>
+          {canRestart && onRestart ? (
+            <button
+              onClick={onRestart}
+              className="group px-8 py-2 text-[#6f5d4c] transition hover:text-[#264d72]"
+            >
+              <span className="block text-sm tracking-[0.28em] text-white/90 drop-shadow-[0_0_6px_rgba(255,255,255,0.9)]">
+                SAME ROOM
+              </span>
 
-            <span className="block text-3xl font-light tracking-[0.14em] [font-family:Arial_Narrow,Arial,sans-serif]">
-              RELOAD
-            </span>
+              <span className="block text-3xl font-light tracking-[0.14em] [font-family:Arial_Narrow,Arial,sans-serif]">
+                RESTART
+              </span>
 
-            <span className="mt-1 block h-px scale-x-0 bg-white/80 transition group-hover:scale-x-100" />
-          </button>
+              <span className="mt-1 block h-px scale-x-0 bg-white/80 transition group-hover:scale-x-100" />
+            </button>
+          ) : (
+            <p className="text-sm tracking-[0.16em] text-[#2f6d90]">
+              ホストが再スタートすると、ルーム待機画面に戻ります。
+            </p>
+          )}
         </div>
       </div>
     </main>

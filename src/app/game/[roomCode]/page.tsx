@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { ref, onValue, update } from "firebase/database";
 import type { Player } from "@/types/player";
@@ -84,6 +84,7 @@ const phaseOrder = [
 
 export default function GamePage() {
   const params = useParams();
+  const router = useRouter();
 
   const roomCode = params.roomCode as string;
 
@@ -138,6 +139,11 @@ export default function GamePage() {
       const room = snapshot.val();
 
       if (!room) return;
+
+      if (room.status === "waiting") {
+        router.push(`/room/${roomCode}`);
+        return;
+      }
 
       setPhase(room.phase ?? "");
       setHostId(room.hostId ?? "");
@@ -221,7 +227,7 @@ export default function GamePage() {
       unsubscribeRoom();
       unsubscribePlayers();
     };
-  }, [roomCode]);
+  }, [roomCode, router]);
 
   const me = players.find(
     (player) => player.id === myPlayerId
@@ -410,6 +416,54 @@ export default function GamePage() {
     await update(ref(db, `rooms/${roomCode}`), {
       phase: "discussion",
     });
+  };
+
+  const restartInSameRoom = async () => {
+    const updates: Record<string, unknown> = {
+      [`rooms/${roomCode}/status`]: "waiting",
+      [`rooms/${roomCode}/phase`]: null,
+      [`rooms/${roomCode}/day`]: 1,
+      [`rooms/${roomCode}/votes`]: null,
+      [`rooms/${roomCode}/voteStage`]: null,
+      [`rooms/${roomCode}/runoffCandidateIds`]: null,
+      [`rooms/${roomCode}/nightActions`]: null,
+      [`rooms/${roomCode}/gnosiaAttackTargetId`]: null,
+      [`rooms/${roomCode}/gnosiaChats`]: null,
+      [`rooms/${roomCode}/discussionChats`]: null,
+      [`rooms/${roomCode}/eveningChats`]: null,
+      [`rooms/${roomCode}/lastEliminatedPlayerId`]: null,
+      [`rooms/${roomCode}/lastEliminatedPlayerIds`]: null,
+      [`rooms/${roomCode}/attackedPlayerId`]: null,
+      [`rooms/${roomCode}/protectedSuccess`]: false,
+      [`rooms/${roomCode}/bugKilled`]: false,
+      [`rooms/${roomCode}/bugKilledIds`]: null,
+      [`rooms/${roomCode}/engineerResults`]: null,
+      [`rooms/${roomCode}/doctorResults`]: null,
+      [`rooms/${roomCode}/winner`]: null,
+      [`rooms/${roomCode}/gameLogs`]: null,
+      [`rooms/${roomCode}/voteHistory`]: null,
+    };
+
+    players.forEach((player) => {
+      updates[
+        `rooms/${roomCode}/players/${player.id}/role`
+      ] = null;
+      updates[
+        `rooms/${roomCode}/players/${player.id}/alive`
+      ] = true;
+      updates[
+        `rooms/${roomCode}/players/${player.id}/eliminationReason`
+      ] = null;
+      updates[
+        `rooms/${roomCode}/players/${player.id}/chatId`
+      ] = null;
+      updates[
+        `rooms/${roomCode}/players/${player.id}/eveningFinished`
+      ] = null;
+    });
+
+    await update(ref(db), updates);
+    router.push(`/room/${roomCode}`);
   };
 
   if (!me) {
@@ -806,6 +860,8 @@ export default function GamePage() {
             winner={winner}
             logs={gameLogs}
             voteHistory={voteHistory}
+            canRestart={myPlayerId === hostId}
+            onRestart={restartInSameRoom}
           />
         );
 

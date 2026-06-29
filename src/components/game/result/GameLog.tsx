@@ -16,7 +16,7 @@ export default function GameLog({
 }: Props) {
   if (logs.length === 0) {
     return (
-      <div className="border border-white/70 bg-white/58 p-6 shadow-[0_8px_24px_rgba(65,113,128,0.14)] backdrop-blur">
+      <div className="border border-white/45 bg-[#d8eff8]/36 p-6 shadow-[0_8px_24px_rgba(35,86,104,0.18)] backdrop-blur">
         <h2 className="mb-4 text-2xl font-light tracking-[0.16em] text-[#174b84]">
           ゲームログ
         </h2>
@@ -42,7 +42,7 @@ export default function GameLog({
   );
 
   return (
-    <section className="border border-white/70 bg-white/58 p-6 shadow-[0_8px_24px_rgba(65,113,128,0.14)] backdrop-blur">
+    <section className="border border-white/45 bg-[#d8eff8]/36 p-6 shadow-[0_8px_24px_rgba(35,86,104,0.18)] backdrop-blur">
 
       <h2 className="mb-6 border-b border-white/70 pb-3 text-2xl font-light tracking-[0.16em] text-[#174b84]">
         ゲームログ
@@ -65,7 +65,7 @@ export default function GameLog({
 
                   <div
                     key={log.id}
-                    className="flex gap-6 border-l-4 border-[#7fb4c5] bg-white/34 px-4 py-2"
+                    className="flex gap-6 border-l-4 border-[#7fb4c5] bg-[#e7f7fa]/24 px-4 py-2"
                   >
 
                     <div className="w-16 font-mono text-[#6f5d4c]">

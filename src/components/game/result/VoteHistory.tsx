@@ -20,7 +20,7 @@ export default function VoteHistory({
 }: Props) {
   if (history.length === 0) {
     return (
-      <div className="border border-white/70 bg-white/58 p-6 shadow-[0_8px_24px_rgba(65,113,128,0.14)] backdrop-blur">
+      <div className="border border-white/45 bg-[#d8eff8]/36 p-6 shadow-[0_8px_24px_rgba(35,86,104,0.18)] backdrop-blur">
         <h2 className="mb-4 text-2xl font-light tracking-[0.16em] text-[#174b84]">
           投票履歴
         </h2>
@@ -33,7 +33,7 @@ export default function VoteHistory({
   }
 
   return (
-    <section className="border border-white/70 bg-white/58 p-6 shadow-[0_8px_24px_rgba(65,113,128,0.14)] backdrop-blur">
+    <section className="border border-white/45 bg-[#d8eff8]/36 p-6 shadow-[0_8px_24px_rgba(35,86,104,0.18)] backdrop-blur">
 
       <h2 className="mb-6 border-b border-white/70 pb-3 text-2xl font-light tracking-[0.16em] text-[#174b84]">
         投票履歴
@@ -49,7 +49,7 @@ export default function VoteHistory({
               {index + 1}回目の投票
             </h3>
 
-            <table className="w-full border-collapse bg-white/34">
+            <table className="w-full border-collapse bg-[#e7f7fa]/24">
 
               <thead>
 
