@@ -288,13 +288,13 @@ export default function DiscussionPhase({
           </div>
         )}
 
-        <div className="absolute left-6 right-72 top-28 z-10 grid grid-cols-4 gap-3 pr-8">
+        <div className="absolute left-6 right-72 top-24 z-10 grid grid-cols-5 gap-2 pr-8">
           {players
             .filter((player) => player.alive !== false)
             .map((player) => (
               <div
                 key={player.id}
-                className={`flex h-20 items-center gap-3 overflow-hidden p-2 shadow-[0_0_0_4px_rgba(255,255,255,0.78)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)] ${
+                className={`flex h-14 items-center gap-2 overflow-hidden border border-white/72 p-1.5 shadow-[0_0_0_2px_rgba(255,255,255,0.58)] ${
                   player.id === speakerId
                     ? "bg-[#b7d6ee]/88"
                     : "bg-white/76"
@@ -307,17 +307,17 @@ export default function DiscussionPhase({
                       : "/characters/question.png"
                   }
                   alt={player.character ?? "未選択"}
-                  width={56}
-                  height={56}
-                  className="rounded-sm object-cover"
+                  width={42}
+                  height={42}
+                  className="aspect-square shrink-0 rounded-sm object-cover"
                 />
 
-                <div>
-                  <p className="font-bold">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold">
                     {player.name}
                   </p>
 
-                  <p className="text-sm font-semibold text-green-700">
+                  <p className="text-xs font-semibold text-green-700">
                     生存
                   </p>
                 </div>
@@ -325,24 +325,24 @@ export default function DiscussionPhase({
             ))}
         </div>
 
-        <div className="absolute bottom-[15.2rem] left-8 z-30">
-          <div className="bg-[#6cca58]/88 px-8 py-2 text-2xl font-light tracking-[0.12em] text-white shadow-[0_0_0_4px_rgba(190,255,170,0.9),4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_36%)]">
+        <div className="absolute bottom-[10.2rem] left-8 z-30">
+          <div className="bg-[#6cca58]/88 px-6 py-1.5 text-xl font-light tracking-[0.12em] text-white shadow-[0_0_0_3px_rgba(190,255,170,0.82),3px_3px_0_rgba(0,0,0,0.18)]">
             チャット
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-4 right-4 z-20 h-60 bg-white/84 px-8 py-7 shadow-[0_0_0_4px_rgba(255,255,255,0.72),5px_5px_0_rgba(0,0,0,0.18)] [clip-path:polygon(3%_0,100%_0,100%_100%,0_100%,0_12%)]">
-          <div className="h-32 overflow-y-auto pr-4">
+        <div className="absolute bottom-0 left-4 right-4 z-20 h-40 bg-white/82 px-6 py-5 shadow-[0_0_0_3px_rgba(255,255,255,0.62),4px_4px_0_rgba(0,0,0,0.14)]">
+          <div className="h-20 overflow-y-auto pr-4">
             {messages.length === 0 ? (
-              <p className="text-xl leading-relaxed text-[#777]">
+              <p className="text-base leading-relaxed text-[#777]">
                 まだメッセージはありません。
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {messages.map((chatMessage) => (
                   <div
                     key={chatMessage.id}
-                    className="grid grid-cols-[8rem_1fr] gap-4 text-xl leading-relaxed text-[#3f3d3d]"
+                    className="grid grid-cols-[6rem_1fr] gap-3 text-base leading-relaxed text-[#3f3d3d]"
                   >
                     <p className="truncate font-bold text-[#2870a4]">
                       {chatMessage.playerName}
@@ -358,9 +358,9 @@ export default function DiscussionPhase({
           </div>
         </div>
 
-        <div className="absolute bottom-4 right-10 z-30 flex w-[min(38rem,48vw)] gap-3">
+        <div className="absolute bottom-3 right-10 z-30 flex w-[min(32rem,42vw)] gap-2">
           {isSpectator ? (
-            <p className="flex-1 border-[3px] border-black bg-white px-4 py-3 text-xl text-[#666]">
+            <p className="flex-1 border-2 border-black bg-white px-3 py-2 text-base text-[#666]">
               閲覧者モードのため発言できません
             </p>
           ) : (
@@ -370,7 +370,7 @@ export default function DiscussionPhase({
                 value={message}
                 disabled={isSending}
                 placeholder="メッセージを入力..."
-                className="min-w-0 flex-1 border-[3px] border-black bg-white px-4 py-3 text-xl text-[#666] outline-none placeholder:text-[#777]"
+                className="min-w-0 flex-1 border-2 border-black bg-white px-3 py-2 text-base text-[#666] outline-none placeholder:text-[#777]"
                 onChange={(event) =>
                   setMessage(event.target.value)
                 }
@@ -385,7 +385,7 @@ export default function DiscussionPhase({
                 type="button"
                 onClick={submitMessage}
                 disabled={isSending}
-                className="border-[3px] border-black bg-white px-6 py-3 text-xl text-[#666] transition hover:bg-gray-100 disabled:text-gray-300"
+                className="border-2 border-black bg-white px-5 py-2 text-base text-[#666] transition hover:bg-gray-100 disabled:text-gray-300"
               >
                 送信
               </button>
