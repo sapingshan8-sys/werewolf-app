@@ -880,7 +880,8 @@ export default function GamePage() {
     phase === "sleep" ||
     phase === "evening" ||
     phase === "night" ||
-    phase === "morning"
+    phase === "morning" ||
+    phase === "result"
   ) {
     return renderPhaseContent();
   }
