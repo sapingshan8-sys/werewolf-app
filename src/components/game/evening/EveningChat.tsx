@@ -88,7 +88,7 @@ export default function EveningChat({
 
       <div className="relative z-10 p-6">
       <h2 className="mb-4 border-b border-[#7aa8b8]/35 pb-3 text-3xl font-light tracking-[0.14em] text-[#2f6d90]">
-        密談チャット
+        チャット
       </h2>
 
       {/* チャット一覧 */}

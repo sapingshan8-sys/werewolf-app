@@ -16,21 +16,54 @@ type EveningPlayerStatus = {
   eveningFinished?: boolean;
 };
 
+const eveningRoomNames = [
+  "メインコンソール",
+  "食堂",
+  "ロビー",
+  "コールドスリープ室",
+  "娯楽室",
+  "展望ラウンジ",
+  "シャワー室",
+  "動力室",
+  "水質管理室",
+];
+
+function shuffle<T>(items: T[]) {
+  const result = [...items];
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [result[i], result[j]] = [
+      result[j],
+      result[i],
+    ];
+  }
+
+  return result;
+}
+
 export async function createEveningGroups(
   roomCode: string,
   voteResults: VoteResult[]
 ) {
   const groups = generatePairs(voteResults);
+  const shuffledRoomNames = shuffle(eveningRoomNames);
 
   const updates: Record<string, unknown> = {};
 
   groups.forEach((group, index) => {
     const chatId = `pair${index + 1}`;
+    const roomName =
+      shuffledRoomNames[index % shuffledRoomNames.length];
 
     // グループ情報
     updates[
       `rooms/${roomCode}/eveningChats/${chatId}/members`
     ] = group;
+    updates[
+      `rooms/${roomCode}/eveningChats/${chatId}/roomName`
+    ] = roomName;
 
     // 各プレイヤーにchatIdを保存
     group.forEach((playerId) => {

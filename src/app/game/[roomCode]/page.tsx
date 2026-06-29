@@ -65,6 +65,10 @@ type VoteHistoryDay = {
     targetName: string;
   }[];
 };
+type EveningChatRoom = {
+  members?: string[];
+  roomName?: string;
+};
 
 const roleNames: Record<string, string> = {
   crew: "乗員",
@@ -153,6 +157,9 @@ export default function GamePage() {
   const [voteHistory, setVoteHistory] = useState<
     VoteHistoryDay[]
   >([]);
+  const [eveningChats, setEveningChats] = useState<
+    Record<string, EveningChatRoom>
+  >({});
   const [voteError, setVoteError] = useState("");
   const [isVoteSubmitting, setIsVoteSubmitting] =
     useState(false);
@@ -198,6 +205,7 @@ export default function GamePage() {
       setEngineerResults(room.engineerResults ?? {});
       setDoctorResults(room.doctorResults ?? null);
       setWinner(room.winner ?? "");
+      setEveningChats(room.eveningChats ?? {});
 
       const logs = Object.values(
         room.gameLogs ?? {}
@@ -303,6 +311,9 @@ export default function GamePage() {
       player.id !== myPlayerId &&
       player.alive !== false
   );
+  const eveningRoomName = me?.chatId
+    ? eveningChats[me.chatId]?.roomName
+    : "";
   const previousVoteHistory = voteHistory.filter(
     (history) =>
       history.day < day || voteStage === "runoff"
@@ -729,12 +740,12 @@ export default function GamePage() {
               <div className="relative z-10 mx-auto max-w-4xl py-16">
                 <div className="inline-block bg-white/88 px-10 py-4 pr-24 shadow-[0_0_0_4px_rgba(255,255,255,0.86),4px_4px_0_rgba(0,0,0,0.28)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)]">
                   <h2 className="text-4xl font-light tracking-[0.16em]">
-                    夕方会議
+                    自由時間
                   </h2>
                 </div>
 
                 <p className="mt-8 bg-white/74 p-6 text-xl shadow-[0_0_0_4px_rgba(255,255,255,0.72)] [clip-path:polygon(5%_0,100%_0,96%_100%,0_100%,0_20%)]">
-                  あなたは閲覧者モードのため、密談には参加しません。
+                  あなたは閲覧者モードのため、会話には参加しません。
                 </p>
 
               {lastEliminatedPlayer && (
@@ -774,11 +785,11 @@ export default function GamePage() {
           return (
             <main className="relative min-h-screen bg-[#d8eff8] px-8 py-20 text-center">
               <h2 className="text-4xl font-light tracking-[0.16em]">
-                夕方会議
+                自由時間
               </h2>
 
               <p className="mt-6 text-xl">
-                密談グループを読み込み中です。
+                会話グループを読み込み中です。
               </p>
             </main>
           );
@@ -790,6 +801,7 @@ export default function GamePage() {
             myPlayer={me}
             partners={eveningPartners}
             chatId={me.chatId}
+            roomName={eveningRoomName}
             onTimerFinish={finishEvening}
           />
         );

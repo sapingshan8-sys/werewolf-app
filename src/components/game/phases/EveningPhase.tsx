@@ -23,6 +23,8 @@ type Props = {
 
   chatId: string;
 
+  roomName?: string;
+
   onTimerFinish?: () => void;
 };
 
@@ -31,6 +33,7 @@ export default function EveningPhase({
   myPlayer,
   partners,
   chatId,
+  roomName = "会話ルーム",
   onTimerFinish,
 }: Props) {
   const [waiting, setWaiting] =
@@ -55,14 +58,14 @@ export default function EveningPhase({
       {waiting && (
         <WaitingOverlay
           title="待機中"
-          message="他のプレイヤーの夕方フェーズ終了を待っています。"
+          message="他のプレイヤーの自由時間終了を待っています。"
         />
       )}
 
       <div className="mb-8 flex items-start justify-between gap-6">
         <div className="inline-block bg-white/88 px-10 py-4 pr-24 shadow-[0_0_0_4px_rgba(255,255,255,0.86),4px_4px_0_rgba(0,0,0,0.28)] [clip-path:polygon(0_0,100%_0,92%_100%,0_100%)]">
           <h2 className="text-4xl font-light tracking-[0.16em]">
-            夕方会議
+            自由時間
           </h2>
         </div>
 
@@ -71,6 +74,15 @@ export default function EveningPhase({
         initialSeconds={120}
         onFinish={finishEvening}
       />
+      </div>
+
+      <div className="mb-8 border border-white/70 bg-white/72 px-7 py-4 shadow-[0_0_0_3px_rgba(255,255,255,0.56),0_14px_32px_rgba(69,117,132,0.16)]">
+        <p className="text-sm font-semibold tracking-[0.22em] text-[#5f8fa2]">
+          ROOM
+        </p>
+        <p className="mt-1 text-3xl font-light tracking-[0.16em] text-[#2f6d90]">
+          {roomName}
+        </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[22rem_1fr]">
@@ -94,7 +106,7 @@ export default function EveningPhase({
           <span className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
           <span className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.13)_0px,rgba(255,255,255,0.13)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(18%_0,100%_0,100%_72%,82%_100%,0_100%,0_34%)]" />
           <span className="relative z-10 block pt-5 text-2xl font-light tracking-[0.08em]">
-            密談を終了
+            自由時間を終了
           </span>
         </button>
 

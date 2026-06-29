@@ -20,12 +20,12 @@ export default function EveningPair({
 
       <div className="relative z-10 p-6">
       <h3 className="mb-4 border-b border-[#7aa8b8]/35 pb-3 text-3xl font-light tracking-[0.14em] text-[#2f6d90]">
-        密談相手
+        会話相手
       </h3>
 
       {partners.length === 0 ? (
         <p className="text-[#5f747b]">
-          密談相手はまだ決まっていません。
+          会話相手はまだ決まっていません。
         </p>
       ) : (
         <>
@@ -58,7 +58,7 @@ export default function EveningPair({
                   </p>
 
                   <p className="mt-1 text-sm font-semibold text-green-700">
-                    密談中
+                    会話中
                   </p>
                 </div>
               </div>
