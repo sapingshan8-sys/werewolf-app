@@ -15,23 +15,21 @@ export default function EveningPair({
   partners,
 }: Props) {
   return (
-    <section className="relative min-h-[28rem] p-1 text-white">
-      <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
-      <div className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
-      <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+    <section className="relative min-h-[28rem] overflow-hidden border border-white/70 bg-white/58 text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.55),0_18px_40px_rgba(69,117,132,0.18)] backdrop-blur">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(199,232,240,0.26)_55%,rgba(255,255,255,0.42)),radial-gradient(circle_at_85%_10%,rgba(76,165,180,0.16),transparent_34%),repeating-linear-gradient(0deg,rgba(113,158,170,0.08)_0px,rgba(113,158,170,0.08)_1px,transparent_1px,transparent_8px)]" />
 
       <div className="relative z-10 p-6">
-      <h3 className="mb-4 text-3xl font-light tracking-[0.14em]">
+      <h3 className="mb-4 border-b border-[#7aa8b8]/35 pb-3 text-3xl font-light tracking-[0.14em] text-[#2f6d90]">
         密談相手
       </h3>
 
       {partners.length === 0 ? (
-        <p className="text-white/82">
+        <p className="text-[#5f747b]">
           密談相手はまだ決まっていません。
         </p>
       ) : (
         <>
-          <p className="mb-5 text-white/78">
+          <p className="mb-5 text-[#5f747b]">
             このプレイヤーとだけ会話できます。
           </p>
 
@@ -40,7 +38,7 @@ export default function EveningPair({
             {partners.map((player) => (
               <div
                 key={player.id}
-                className="flex items-center gap-4 bg-white/72 p-3 text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.72)] [clip-path:polygon(8%_0,100%_0,94%_100%,0_100%,0_30%)]"
+                className="flex items-center gap-4 border border-white/70 bg-white/68 p-3 text-[#2e2c2c] shadow-[0_8px_20px_rgba(75,124,138,0.14)]"
               >
                 <Image
                   src={

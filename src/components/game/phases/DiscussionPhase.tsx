@@ -247,13 +247,11 @@ export default function DiscussionPhase({
         )}
 
         {isRolePanelOpen && (
-          <div className="absolute right-60 top-24 z-40 max-h-72 w-80 overflow-y-auto p-1 text-white">
-            <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_24%)]" />
-            <div className="absolute inset-[5px] bg-[#727681]/82 [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_24%)]" />
-            <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(10%_0,100%_0,96%_100%,0_100%,0_24%)]" />
+          <div className="absolute right-60 top-24 z-40 max-h-72 w-80 overflow-y-auto border border-white/55 bg-[#626a73]/95 p-5 text-white shadow-[0_0_0_3px_rgba(255,255,255,0.5),0_18px_36px_rgba(37,55,66,0.24)]">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.14),transparent_44%),repeating-linear-gradient(0deg,rgba(255,255,255,0.08)_0px,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_7px)]" />
 
-            <div className="relative z-10 p-5">
-              <h3 className="mb-4 text-xl font-light tracking-[0.16em]">
+            <div className="relative z-10">
+              <h3 className="mb-4 border-b border-white/35 pb-3 text-xl font-light tracking-[0.16em]">
                 CO
               </h3>
 
@@ -264,7 +262,7 @@ export default function DiscussionPhase({
                     type="button"
                     onClick={() => claimRole(role)}
                     disabled={isSpectator || isSending}
-                    className="bg-white/16 px-3 py-2 font-semibold text-white shadow-[0_0_0_2px_rgba(255,255,255,0.72)] transition hover:bg-white/28 disabled:text-white/35 [clip-path:polygon(12%_0,100%_0,92%_100%,0_100%,0_32%)]"
+                    className="border border-white/45 bg-white/14 px-3 py-2 font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.16)] transition hover:bg-white/24 disabled:text-white/35"
                   >
                     {roleLabels[role]}
                   </button>
@@ -281,12 +279,10 @@ export default function DiscussionPhase({
         )}
 
         {isVoteHistoryOpen && (
-          <div className="absolute right-60 top-52 z-40 max-h-52 w-[32rem] overflow-y-auto p-1 text-white">
-            <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
-            <div className="absolute inset-[5px] bg-[#727681]/84 [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
-            <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(8%_0,100%_0,96%_100%,0_100%,0_18%)]" />
+          <div className="absolute right-60 top-52 z-40 max-h-64 w-[32rem] overflow-y-auto border border-white/55 bg-[#626a73]/95 p-5 text-white shadow-[0_0_0_3px_rgba(255,255,255,0.5),0_18px_36px_rgba(37,55,66,0.24)]">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.14),transparent_44%),repeating-linear-gradient(0deg,rgba(255,255,255,0.08)_0px,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_7px)]" />
 
-            <div className="relative z-10 p-5 text-[#f7f7f7] [&_*]:border-white/50 [&_h3]:text-white [&_p]:text-white/90 [&_td]:text-white/92 [&_th]:text-white">
+            <div className="relative z-10 text-white [&_div]:border-white/35 [&_h2]:mb-4 [&_h2]:text-white [&_h3]:text-white [&_p]:text-white/85 [&_table]:text-white [&_td]:border-white/30 [&_td]:text-white/92 [&_th]:border-white/30 [&_th]:bg-white/14 [&_th]:text-white [&_thead_tr]:bg-transparent">
               <VoteHistory history={voteHistory} />
             </div>
           </div>

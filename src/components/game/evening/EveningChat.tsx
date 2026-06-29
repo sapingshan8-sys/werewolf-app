@@ -83,18 +83,16 @@ export default function EveningChat({
   };
 
   return (
-    <section className="relative min-h-[28rem] p-1 text-white">
-      <div className="absolute inset-0 bg-white/88 shadow-[4px_4px_0_rgba(0,0,0,0.22)] [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_14%)]" />
-      <div className="absolute inset-[5px] bg-[#727681]/78 [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_14%)]" />
-      <div className="absolute inset-[5px] bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.12)_0px,rgba(255,255,255,0.12)_2px,transparent_2px,transparent_8px)] [clip-path:polygon(6%_0,100%_0,96%_100%,0_100%,0_14%)]" />
+    <section className="relative min-h-[28rem] overflow-hidden border border-white/70 bg-white/62 text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.55),0_18px_40px_rgba(69,117,132,0.18)] backdrop-blur">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(199,232,240,0.28)_52%,rgba(255,255,255,0.45)),repeating-linear-gradient(0deg,rgba(113,158,170,0.08)_0px,rgba(113,158,170,0.08)_1px,transparent_1px,transparent_8px)]" />
 
       <div className="relative z-10 p-6">
-      <h2 className="mb-4 text-3xl font-light tracking-[0.14em]">
+      <h2 className="mb-4 border-b border-[#7aa8b8]/35 pb-3 text-3xl font-light tracking-[0.14em] text-[#2f6d90]">
         密談チャット
       </h2>
 
       {/* チャット一覧 */}
-      <div className="h-80 overflow-y-auto bg-white/72 p-5 text-[#2e2c2c] shadow-[0_0_0_3px_rgba(255,255,255,0.65)] [clip-path:polygon(4%_0,100%_0,98%_100%,0_100%,0_14%)]">
+      <div className="h-80 overflow-y-auto border border-white/75 bg-white/66 p-5 text-[#2e2c2c] shadow-[inset_0_0_24px_rgba(129,177,188,0.16)]">
 
         {messages.length === 0 ? (
           <p className="text-[#666]">
