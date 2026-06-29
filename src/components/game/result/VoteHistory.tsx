@@ -20,12 +20,12 @@ export default function VoteHistory({
 }: Props) {
   if (history.length === 0) {
     return (
-      <div className="border rounded-xl p-6 mt-8">
-        <h2 className="text-2xl font-bold mb-4">
+      <div className="border border-white/70 bg-white/58 p-6 shadow-[0_8px_24px_rgba(65,113,128,0.14)] backdrop-blur">
+        <h2 className="mb-4 text-2xl font-light tracking-[0.16em] text-[#174b84]">
           投票履歴
         </h2>
 
-        <p className="text-gray-500">
+        <p className="text-[#5f747b]">
           投票履歴はありません。
         </p>
       </div>
@@ -33,9 +33,9 @@ export default function VoteHistory({
   }
 
   return (
-    <div className="border rounded-xl p-6 mt-8">
+    <section className="border border-white/70 bg-white/58 p-6 shadow-[0_8px_24px_rgba(65,113,128,0.14)] backdrop-blur">
 
-      <h2 className="text-2xl font-bold mb-6">
+      <h2 className="mb-6 border-b border-white/70 pb-3 text-2xl font-light tracking-[0.16em] text-[#174b84]">
         投票履歴
       </h2>
 
@@ -45,21 +45,21 @@ export default function VoteHistory({
 
           <div key={`${dayHistory.day}-${index}`}>
 
-            <h3 className="text-xl font-bold mb-3">
+            <h3 className="mb-3 text-xl font-semibold text-[#246c9b]">
               {index + 1}回目の投票
             </h3>
 
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse bg-white/34">
 
               <thead>
 
-                <tr className="bg-gray-100">
+                <tr className="bg-[#d8eff8]/68">
 
-                  <th className="border p-2">
+                  <th className="border border-white/70 p-2 text-[#174b84]">
                     投票者
                   </th>
 
-                  <th className="border p-2">
+                  <th className="border border-white/70 p-2 text-[#174b84]">
                     投票先
                   </th>
 
@@ -74,11 +74,11 @@ export default function VoteHistory({
 
                     <tr key={index}>
 
-                      <td className="border p-2 text-center">
+                      <td className="border border-white/70 p-2 text-center">
                         {vote.voterName}
                       </td>
 
-                      <td className="border p-2 text-center">
+                      <td className="border border-white/70 p-2 text-center">
                         {vote.targetName}
                       </td>
 
@@ -97,6 +97,6 @@ export default function VoteHistory({
 
       </div>
 
-    </div>
+    </section>
   );
 }
