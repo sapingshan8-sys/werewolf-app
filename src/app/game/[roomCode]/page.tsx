@@ -46,6 +46,10 @@ type EngineerResultMap = Record<
     isGnosia: boolean;
   }
 >;
+type EngineerInvestigationHistory = Record<
+  string,
+  Record<string, true>
+>;
 type DoctorResult = {
   targetId: string;
   isHuman: boolean;
@@ -149,6 +153,10 @@ export default function GamePage() {
   >([]);
   const [engineerResults, setEngineerResults] =
     useState<EngineerResultMap>({});
+  const [
+    engineerInvestigationHistory,
+    setEngineerInvestigationHistory,
+  ] = useState<EngineerInvestigationHistory>({});
   const [doctorResults, setDoctorResults] =
     useState<DoctorResult>(null);
   const [winner, setWinner] = useState("");
@@ -204,6 +212,9 @@ export default function GamePage() {
       );
       setBugKilledIds(room.bugKilledIds ?? []);
       setEngineerResults(room.engineerResults ?? {});
+      setEngineerInvestigationHistory(
+        room.engineerInvestigationHistory ?? {}
+      );
       setDoctorResults(room.doctorResults ?? null);
       setWinner(room.winner ?? "");
       setEveningChats(room.eveningChats ?? {});
@@ -293,6 +304,9 @@ export default function GamePage() {
   );
   const myEngineerResult =
     engineerResults[myPlayerId];
+  const myInvestigatedTargetIds = Object.keys(
+    engineerInvestigationHistory[myPlayerId] ?? {}
+  );
   const engineerTarget = players.find(
     (player) =>
       player.id === myEngineerResult?.targetId
@@ -487,6 +501,8 @@ export default function GamePage() {
       [`rooms/${roomCode}/bugKilled`]: false,
       [`rooms/${roomCode}/bugKilledIds`]: null,
       [`rooms/${roomCode}/engineerResults`]: null,
+      [`rooms/${roomCode}/engineerInvestigationHistory`]:
+        null,
       [`rooms/${roomCode}/doctorResults`]: null,
       [`rooms/${roomCode}/winner`]: null,
       [`rooms/${roomCode}/gameLogs`]: null,
@@ -836,6 +852,7 @@ export default function GamePage() {
               nightActions[myPlayerId]?.finished === true
             }
             gnosiaAttackTargetId={gnosiaAttackTargetId}
+            investigatedTargetIds={myInvestigatedTargetIds}
             onSelectGnosiaAttackTarget={
               selectGnosiaAttackTarget
             }

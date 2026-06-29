@@ -276,6 +276,7 @@ export default function RoomPage() {
         bugKilled: false,
         bugKilledIds: null,
         engineerResults: null,
+        engineerInvestigationHistory: null,
         doctorResults: null,
         winner: null,
         gameLogs: null,

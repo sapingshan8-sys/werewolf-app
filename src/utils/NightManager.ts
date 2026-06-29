@@ -19,6 +19,11 @@ type NightAction = {
   finished?: boolean;
 };
 
+type EngineerInvestigationHistory = Record<
+  string,
+  Record<string, true>
+>;
+
 function getAlivePlayers(players: PlayerWithId[]) {
   return players.filter(
     (player) => player.alive !== false
@@ -42,6 +47,18 @@ export async function submitNightAction(
 
   if (!room || room.phase !== "night") {
     return;
+  }
+
+  const engineerInvestigationHistory =
+    (room.engineerInvestigationHistory ??
+      {}) as EngineerInvestigationHistory;
+
+  if (
+    player.role === "engineer" &&
+    targetId &&
+    engineerInvestigationHistory[player.id]?.[targetId]
+  ) {
+    throw new Error("Already investigated target");
   }
 
   const actionTargetId =
@@ -140,6 +157,7 @@ export async function executeNight(
     }
   > = {};
   const bugKilledIds: string[] = [];
+  const updates: Record<string, unknown> = {};
 
   //------------------------------------------------
   // 守護対象
@@ -173,6 +191,9 @@ export async function executeNight(
           isGnosia:
             target?.role === "gnosia",
         };
+        updates[
+          `rooms/${roomCode}/engineerInvestigationHistory/${playerId}/${action.targetId}`
+        ] = true;
 
         if (
           target?.role === "bug" &&
@@ -243,8 +264,6 @@ export async function executeNight(
     attackTarget && !attackPrevented
       ? attackTarget
       : null;
-
-  const updates: Record<string, unknown> = {};
 
   bugKilledIds.forEach((bugPlayerId) => {
     updates[

@@ -36,6 +36,7 @@ type Props = {
   lastEliminatedPlayer?: PlayerWithId;
   alreadyFinished?: boolean;
   gnosiaAttackTargetId?: string;
+  investigatedTargetIds?: string[];
   onSelectGnosiaAttackTarget: (
     targetId: string
   ) => Promise<void>;
@@ -92,6 +93,7 @@ export default function NightPhase({
   lastEliminatedPlayer,
   alreadyFinished = false,
   gnosiaAttackTargetId = "",
+  investigatedTargetIds = [],
   onSelectGnosiaAttackTarget,
   onSubmitAction,
 }: Props) {
@@ -114,6 +116,10 @@ export default function NightPhase({
       !(
         myPlayer.role === "gnosia" &&
         player.role === "gnosia"
+      ) &&
+      !(
+        myPlayer.role === "engineer" &&
+        investigatedTargetIds.includes(player.id)
       )
   );
   const displayedSelectedId =
@@ -263,6 +269,12 @@ export default function NightPhase({
       )}
 
       <div className="grid max-h-[calc(100vh-15rem)] w-[38rem] grid-cols-1 gap-4 overflow-y-auto px-8 pb-4">
+        {selectableTargets.length === 0 && (
+          <div className="bg-white/78 px-6 py-5 text-xl text-[#3e3b3b] shadow-[0_0_0_4px_rgba(255,255,255,0.72)]">
+            選択できる対象がいません。
+          </div>
+        )}
+
         {selectableTargets.map((player) => {
           const isLockedDifferentGnosiaTarget =
             myPlayer.role === "gnosia" &&
