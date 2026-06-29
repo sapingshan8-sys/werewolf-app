@@ -91,6 +91,13 @@ export async function submitNightAction(
 export async function executeNight(
   roomCode: string
 ) {
+  const roomSnap = await get(
+    ref(db, `rooms/${roomCode}`)
+  );
+  const room = roomSnap.val();
+  const sharedGnosiaAttackTargetId =
+    room?.gnosiaAttackTargetId ?? null;
+
   //------------------------------------------------
   // プレイヤー取得
   //------------------------------------------------
@@ -144,7 +151,8 @@ export async function executeNight(
   // 襲撃対象
   //------------------------------------------------
 
-  let attackTarget: string | null = null;
+  let attackTarget: string | null =
+    sharedGnosiaAttackTargetId;
   let doctorTarget: string | null = null;
 
   for (const playerId in actions) {
@@ -192,9 +200,9 @@ export async function executeNight(
       }
 
       case "gnosia": {
-
-        attackTarget =
-          action.targetId ?? null;
+        if (!attackTarget && action.targetId) {
+          attackTarget = action.targetId;
+        }
 
         break;
       }
@@ -284,12 +292,7 @@ export async function executeNight(
   updates[`rooms/${roomCode}/bugKilledIds`] =
     bugKilledIds;
 
-  const currentDay =
-    (
-      await get(
-        ref(db, `rooms/${roomCode}/day`)
-      )
-    ).val() ?? 1;
+  const currentDay = room?.day ?? 1;
   const logDay = currentDay + 1;
   const time = new Date().toLocaleTimeString(
     "ja-JP",

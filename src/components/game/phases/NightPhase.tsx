@@ -120,6 +120,9 @@ export default function NightPhase({
     myPlayer.role === "gnosia"
       ? gnosiaAttackTargetId
       : selectedId;
+  const lockedGnosiaTarget = players.find(
+    (player) => player.id === gnosiaAttackTargetId
+  );
   const currentTheme =
     actionThemes[myPlayer.role ?? ""] ??
     actionThemes.engineer;
@@ -190,9 +193,20 @@ export default function NightPhase({
   };
 
   const selectTarget = async (targetId: string) => {
+    if (
+      myPlayer.role === "gnosia" &&
+      gnosiaAttackTargetId &&
+      gnosiaAttackTargetId !== targetId
+    ) {
+      return;
+    }
+
     setSelectedId(targetId);
 
-    if (myPlayer.role === "gnosia") {
+    if (
+      myPlayer.role === "gnosia" &&
+      !gnosiaAttackTargetId
+    ) {
       await onSelectGnosiaAttackTarget(targetId);
     }
   };
@@ -200,8 +214,21 @@ export default function NightPhase({
   const selectAndSubmitTarget = async (
     targetId: string
   ) => {
+    if (
+      myPlayer.role === "gnosia" &&
+      gnosiaAttackTargetId &&
+      gnosiaAttackTargetId !== targetId
+    ) {
+      return;
+    }
+
+    const actionTargetId =
+      myPlayer.role === "gnosia" && gnosiaAttackTargetId
+        ? gnosiaAttackTargetId
+        : targetId;
+
     await selectTarget(targetId);
-    await finishNight(targetId);
+    await finishNight(actionTargetId);
   };
 
   const finishNight = async (
@@ -229,18 +256,36 @@ export default function NightPhase({
         {description}
       </p>
 
+      {myPlayer.role === "gnosia" && lockedGnosiaTarget && (
+        <p className="mb-4 ml-8 max-w-3xl bg-red-950/70 px-5 py-3 text-base font-semibold text-white shadow-[0_0_0_3px_rgba(255,255,255,0.62)]">
+          襲撃対象は{lockedGnosiaTarget.name}に決定済みです。選択は変更できません。
+        </p>
+      )}
+
       <div className="grid max-h-[calc(100vh-15rem)] w-[38rem] grid-cols-1 gap-4 overflow-y-auto px-8 pb-4">
-        {selectableTargets.map((player) => (
+        {selectableTargets.map((player) => {
+          const isLockedDifferentGnosiaTarget =
+            myPlayer.role === "gnosia" &&
+            Boolean(gnosiaAttackTargetId) &&
+            gnosiaAttackTargetId !== player.id;
+
+          return (
           <button
             key={player.id}
             onClick={() =>
               selectAndSubmitTarget(player.id)
             }
-            disabled={waiting}
+            disabled={
+              waiting || isLockedDifferentGnosiaTarget
+            }
             className={`group relative h-24 overflow-hidden bg-white/88 text-left transition hover:translate-x-1 [clip-path:polygon(12%_0,100%_0,92%_100%,0_100%,0_36%)] ${
               displayedSelectedId === player.id
                 ? currentTheme.selected
                 : "shadow-[0_0_0_4px_rgba(255,255,255,0.72)]"
+            } ${
+              isLockedDifferentGnosiaTarget
+                ? "cursor-not-allowed opacity-45 hover:translate-x-0"
+                : ""
             }`}
           >
             <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden opacity-95">
@@ -264,7 +309,8 @@ export default function NightPhase({
               {player.name}
             </p>
           </button>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -314,7 +360,7 @@ export default function NightPhase({
   const renderGnosiaAbility = () => (
     <div className="grid min-h-0 gap-8 lg:grid-cols-[42rem_1fr]">
       {renderTargetGrid(
-        "襲撃対象を選択してください。選択すると夜行動を終了します。"
+        "グノーシア全員で共有する襲撃対象を選択してください。最初に選ばれた対象で固定されます。"
       )}
       {renderGnosiaChat()}
     </div>

@@ -4,7 +4,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { ref, onValue, update } from "firebase/database";
+import {
+  ref,
+  onValue,
+  runTransaction,
+  update,
+} from "firebase/database";
 import type { Player } from "@/types/player";
 import type { RoleCounts } from "@/lib/roles";
 import DiscussionPhase from "@/components/game/phases/DiscussionPhase";
@@ -435,9 +440,10 @@ export default function GamePage() {
   const selectGnosiaAttackTarget = async (
     targetId: string
   ) => {
-    await update(ref(db, `rooms/${roomCode}`), {
-      gnosiaAttackTargetId: targetId,
-    });
+    await runTransaction(
+      ref(db, `rooms/${roomCode}/gnosiaAttackTargetId`),
+      (currentTargetId) => currentTargetId ?? targetId
+    );
   };
 
   const finishMorning = async () => {

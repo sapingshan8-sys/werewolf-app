@@ -35,7 +35,6 @@ type Props = {
 
 export default function MorningPhase({
   attackedPlayer,
-  protectedSuccess = false,
   bugKilled = false,
   engineerResult,
   doctorResult,
@@ -46,11 +45,9 @@ export default function MorningPhase({
     onFinish?.();
   };
   const resultLines = [
-    protectedSuccess
-      ? "昨夜は、誰も襲われませんでした"
-      : attackedPlayer
-        ? `昨夜、${attackedPlayer.name}が消滅しました`
-        : "昨夜は、誰も襲われませんでした",
+    attackedPlayer
+      ? `昨夜、${attackedPlayer.name}が消滅しました`
+      : "昨夜は、誰も襲われませんでした",
     bugKilled ? "バグが消滅しました" : "",
     engineerResult
       ? `調査の結果、${engineerResult.targetName}は${
