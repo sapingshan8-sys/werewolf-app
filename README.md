@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GNOSIA Werewolf App
 
-## Getting Started
+GNOSIA風の人狼ゲームをブラウザで遊ぶためのWebアプリケーションです。
 
-First, run the development server:
+ルームコードを共有して参加し、キャラクター選択、役職提示、昼会議、投票、自由時間、夜行動、朝の結果表示、勝敗判定までをオンラインで進行できます。
+
+公開URL: https://werewolf-app-xi.vercel.app/
+
+## 主な機能
+
+- ルーム作成、ルームコードによる参加
+- プレイヤー名入力とキャラクターアイコン選択
+- ホストによる役職内訳の設定
+- 会議、自由時間、空間転移中の時間設定
+- 役職提示と相方表示
+- グノーシア、留守番の役職提示中チャット
+- 昼会議チャット
+- 役職COボタンと自動チャット投稿
+- 前日以前の投票履歴表示
+- 投票、再投票、コールドスリープ可否投票
+- コールドスリープ発表
+- 自由時間のペア会話とランダム会話場所
+- 夜行動
+  - グノーシアの襲撃対象選択
+  - グノーシア夜チャット
+  - エンジニア調査
+  - ドクター脳解析
+  - 守護天使護衛
+- 朝の結果表示
+- 勝敗判定
+  - 乗員陣営
+  - グノーシア陣営
+  - バグ
+- ゲーム終了ログ表示
+- 同じメンバーで再スタート
+
+## 使用技術
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Firebase Realtime Database
+- Vercel
+
+## ローカル起動
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで以下を開きます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://127.0.0.1:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## よく使うコマンド
 
-## Learn More
+```bash
+npm run lint
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Firebase Realtime Database
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+このアプリは Firebase Realtime Database を使って、ルーム情報、プレイヤー情報、チャット、投票、夜行動、ゲームログを同期しています。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+公開して使う場合は、Realtime Database のルールを必ず確認してください。最低限、全体を開放する以下のようなルールは避けます。
 
-## Deploy on Vercel
+```json
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+現在のアプリはログインなしでルームコードを使う設計のため、完全な本人確認やホスト権限管理はまだルールだけでは行っていません。広く公開する場合は、Firebase匿名ログインや権限管理の追加を推奨します。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## デプロイ
+
+GitHub の `main` ブランチに push すると、Vercel で自動デプロイされます。
+
+```bash
+git push origin main
+```
+
+## 開発メモ
+
+- ルーム待機画面で、ホストが役職内訳とフェーズ時間を設定します。
+- 誰がどの役職になるかは、ゲーム開始時にランダムで決まります。
+- 会議、自由時間、空間転移中のタイマーは、ルームに保存された開始時刻をもとに表示されます。
+- ゲーム進行の状態は Firebase Realtime Database の `rooms/{roomCode}` 配下に保存されます。
