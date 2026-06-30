@@ -8,7 +8,7 @@ import { ref, onValue, update } from "firebase/database";
 import {
   buildRolesFromCounts,
   configurableRoles,
-  getDefaultRoleCounts,
+  getEmptyRoleCounts,
   roleLabels,
   type RoleCounts,
 } from "@/lib/roles";
@@ -27,11 +27,6 @@ import type { Player } from "@/types/player";
 
 type PlayerWithId = Player & {
   id: string;
-};
-
-type RoleCountState = {
-  playerCount: number;
-  counts: RoleCounts;
 };
 
 const countEditableRoles = [
@@ -76,11 +71,8 @@ export default function RoomPage() {
   const [myPlayerId] = useState(() =>
     getPlayerSession().playerId
   );
-  const [roleCountState, setRoleCountState] =
-    useState<RoleCountState>(() => ({
-      playerCount: 0,
-      counts: getDefaultRoleCounts(0),
-    }));
+  const [roleCounts, setRoleCounts] =
+    useState<RoleCounts>(() => getEmptyRoleCounts());
   const [timerSettings, setTimerSettings] =
     useState<TimerSettings>(defaultTimerSettings);
 
@@ -130,13 +122,6 @@ export default function RoomPage() {
     };
   }, [roomCode, router]);
 
-  if (roleCountState.playerCount !== players.length) {
-    setRoleCountState({
-      playerCount: players.length,
-      counts: getDefaultRoleCounts(players.length),
-    });
-  }
-
   // 自分
   const me = players.find(
     (player) => player.id === myPlayerId
@@ -146,7 +131,6 @@ export default function RoomPage() {
   const allReady =
     players.length > 0 &&
     players.every((player) => player.ready);
-  const roleCounts = roleCountState.counts;
   const roleTotal = Object.values(roleCounts).reduce(
     (sum, count) => sum + count,
     0
@@ -172,12 +156,9 @@ export default function RoomPage() {
     role: string,
     value: number
   ) => {
-    setRoleCountState((currentState) => ({
-      ...currentState,
-      counts: {
-        ...currentState.counts,
-        [role]: Math.max(0, value),
-      },
+    setRoleCounts((currentCounts) => ({
+      ...currentCounts,
+      [role]: Math.max(0, value),
     }));
   };
 

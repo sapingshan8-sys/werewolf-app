@@ -22,6 +22,17 @@ export const configurableRoles = [
 
 export type RoleCounts = Record<string, number>;
 
+export function getEmptyRoleCounts(): RoleCounts {
+  return configurableRoles.reduce<RoleCounts>(
+    (counts, role) => {
+      counts[role] = 0;
+
+      return counts;
+    },
+    {}
+  );
+}
+
 export function getRoles(playerCount: number): string[] {
   switch (playerCount) {
     case 2:
