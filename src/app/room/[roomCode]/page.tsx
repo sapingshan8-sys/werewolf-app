@@ -75,6 +75,8 @@ export default function RoomPage() {
     useState<RoleCounts>(() => getEmptyRoleCounts());
   const [timerSettings, setTimerSettings] =
     useState<TimerSettings>(defaultTimerSettings);
+  const [copiedRoomCode, setCopiedRoomCode] =
+    useState(false);
 
   useEffect(() => {
     // ルーム情報監視
@@ -228,6 +230,19 @@ export default function RoomPage() {
     }
   };
 
+  const copyRoomCode = async () => {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      setCopiedRoomCode(true);
+      window.setTimeout(() => {
+        setCopiedRoomCode(false);
+      }, 1800);
+    } catch (error) {
+      console.error(error);
+      alert("ルームコードのコピーに失敗しました");
+    }
+  };
+
   // ゲーム開始
   const startGame = async () => {
     try {
@@ -337,9 +352,25 @@ export default function RoomPage() {
               ルームコード
             </p>
 
-            <p className="mt-1 text-3xl tracking-[0.16em] text-[#174b84]">
-              {roomCode}
-            </p>
+            <div className="mt-1 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+              <button
+                type="button"
+                onClick={copyRoomCode}
+                className="group text-left text-3xl tracking-[0.16em] text-[#174b84] transition hover:text-[#2870a4]"
+                title="ルームコードをコピー"
+              >
+                {roomCode}
+                <span className="block h-px w-full scale-x-0 bg-[#174b84]/60 transition group-hover:scale-x-100" />
+              </button>
+
+              <button
+                type="button"
+                onClick={copyRoomCode}
+                className="rounded-sm border border-white/50 bg-white/30 px-4 py-2 text-sm font-semibold tracking-[0.14em] text-[#6f5d4c] shadow-[0_0_16px_rgba(255,255,255,0.18)] transition hover:bg-white/44 hover:text-[#174b84]"
+              >
+                {copiedRoomCode ? "コピー済み" : "コピー"}
+              </button>
+            </div>
           </div>
 
         <button
