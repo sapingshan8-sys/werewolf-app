@@ -366,9 +366,17 @@ export default function GamePage() {
       ? `${coldSleepNames}がコールドスリープしました`
       : "本日は誰もコールドスリープしませんでした";
   const nextPhaseRequestKey = `${phase}_${day}_${voteStage}`;
-  const nextPhaseEligiblePlayers = players;
+  const gnosiaPlayers = players.filter(
+    (player) => player.role === "gnosia"
+  );
+  const nextPhaseEligiblePlayers =
+    phase === "roleReveal" && gnosiaPlayers.length > 0
+      ? gnosiaPlayers
+      : players;
   const nextPhaseThreshold =
-    Math.floor(nextPhaseEligiblePlayers.length / 2) + 1;
+    phase === "roleReveal" && gnosiaPlayers.length > 0
+      ? gnosiaPlayers.length
+      : Math.floor(nextPhaseEligiblePlayers.length / 2) + 1;
   const currentNextPhaseRequests =
     nextPhaseRequests[nextPhaseRequestKey] ?? {};
   const nextPhaseApprovalCount =
