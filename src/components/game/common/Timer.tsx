@@ -19,6 +19,8 @@ type Props = {
 
   // タイマーを動かすか
   isRunning?: boolean;
+
+  variant?: "default" | "discussion";
 };
 
 export default function Timer({
@@ -26,6 +28,7 @@ export default function Timer({
   startedAt,
   onFinish,
   isRunning = true,
+  variant = "default",
 }: Props) {
   const [now, setNow] = useState(() => Date.now());
   const getRemainingSeconds = useCallback(() => {
@@ -67,6 +70,27 @@ export default function Timer({
 
   const minutes = Math.floor(seconds / 60);
   const remainSeconds = seconds % 60;
+
+  if (variant === "discussion") {
+    return (
+      <div className="flex justify-center">
+        <div className="relative min-w-36 overflow-hidden border border-white/65 bg-[#2f8ec2]/34 px-5 py-2 text-center text-white shadow-[0_0_0_2px_rgba(255,255,255,0.32),0_10px_28px_rgba(54,132,164,0.18)] backdrop-blur-md">
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.32),transparent_55%),repeating-linear-gradient(0deg,rgba(255,255,255,0.08)_0px,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_6px)]" />
+
+          <div className="relative z-10">
+            <p className="text-[0.65rem] font-semibold tracking-[0.22em] text-white/72">
+              TIME
+            </p>
+
+            <p className="text-2xl font-light tracking-[0.16em] drop-shadow">
+              {String(minutes).padStart(2, "0")}:
+              {String(remainSeconds).padStart(2, "0")}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center">

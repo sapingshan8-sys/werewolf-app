@@ -174,11 +174,12 @@ export default function DiscussionPhase({
           </h2>
         </div>
 
-        <div className="absolute left-[18rem] top-0 z-40">
+        <div className="absolute left-[16rem] top-2 z-40">
           <Timer
             initialSeconds={timerSeconds}
             startedAt={timerStartedAt}
             isRunning
+            variant="discussion"
           />
         </div>
 
