@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type Props = {
   // 秒数
   initialSeconds: number;
+
+  // 共有タイマーの開始時刻
+  startedAt?: number | null;
 
   // 時間切れ
   onFinish?: () => void;
@@ -15,36 +23,43 @@ type Props = {
 
 export default function Timer({
   initialSeconds,
+  startedAt,
   onFinish,
   isRunning = true,
 }: Props) {
-  const [timer, setTimer] = useState({
-    initialSeconds,
-    seconds: initialSeconds,
-  });
+  const [now, setNow] = useState(() => Date.now());
+  const getRemainingSeconds = useCallback(() => {
+    if (!startedAt) {
+      return initialSeconds;
+    }
 
-  if (timer.initialSeconds !== initialSeconds) {
-    setTimer({
-      initialSeconds,
-      seconds: initialSeconds,
-    });
-  }
+    const elapsedSeconds = Math.floor(
+      (now - startedAt) / 1000
+    );
 
-  const seconds = timer.seconds;
+    return Math.max(0, initialSeconds - elapsedSeconds);
+  }, [initialSeconds, now, startedAt]);
+
+  const hasFinishedRef = useRef(false);
+  const seconds = getRemainingSeconds();
+
+  useEffect(() => {
+    hasFinishedRef.current = false;
+  }, [initialSeconds, startedAt]);
 
   useEffect(() => {
     if (!isRunning) return;
 
     if (seconds <= 0) {
-      onFinish?.();
+      if (!hasFinishedRef.current) {
+        hasFinishedRef.current = true;
+        onFinish?.();
+      }
       return;
     }
 
     const timer = setInterval(() => {
-      setTimer((prev) => ({
-        ...prev,
-        seconds: prev.seconds - 1,
-      }));
+      setNow(Date.now());
     }, 1000);
 
     return () => clearInterval(timer);

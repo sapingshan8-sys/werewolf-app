@@ -37,6 +37,8 @@ type Props = {
   alreadyFinished?: boolean;
   gnosiaAttackTargetId?: string;
   investigatedTargetIds?: string[];
+  timerSeconds: number;
+  timerStartedAt?: number | null;
   onSelectGnosiaAttackTarget: (
     targetId: string
   ) => Promise<void>;
@@ -94,6 +96,8 @@ export default function NightPhase({
   alreadyFinished = false,
   gnosiaAttackTargetId = "",
   investigatedTargetIds = [],
+  timerSeconds,
+  timerStartedAt,
   onSelectGnosiaAttackTarget,
   onSubmitAction,
 }: Props) {
@@ -496,7 +500,8 @@ export default function NightPhase({
         </div>
 
       <Timer
-        initialSeconds={60}
+        initialSeconds={timerSeconds}
+        startedAt={timerStartedAt}
         onFinish={() =>
           finishNight(
             myPlayer.role === "gnosia"

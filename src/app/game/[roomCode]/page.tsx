@@ -28,6 +28,10 @@ import {
 import { finishEveningIfReady } from "@/utils/EveningManager";
 import { submitNightAction } from "@/utils/NightManager";
 import { getPlayerSession } from "@/lib/playerSession";
+import {
+  normalizeTimerSettings,
+  type TimerSettings,
+} from "@/lib/timerSettings";
 
 type PlayerWithId = Player & {
   id: string;
@@ -135,7 +139,14 @@ export default function GamePage() {
   );
   const [hostId, setHostId] = useState("");
   const [phase, setPhase] = useState("");
+  const [phaseStartedAt, setPhaseStartedAt] = useState<
+    number | null
+  >(null);
   const [day, setDay] = useState(1);
+  const [timerSettings, setTimerSettings] =
+    useState<TimerSettings>(
+      normalizeTimerSettings(null)
+    );
   const [roleCounts, setRoleCounts] =
     useState<RoleCounts>({});
   const [lastEliminatedPlayerId, setLastEliminatedPlayerId] =
@@ -197,8 +208,12 @@ export default function GamePage() {
       }
 
       setPhase(room.phase ?? "");
+      setPhaseStartedAt(room.phaseStartedAt ?? null);
       setHostId(room.hostId ?? "");
       setDay(room.day ?? 1);
+      setTimerSettings(
+        normalizeTimerSettings(room.timerSettings)
+      );
       setRoleCounts(room.roleCounts ?? {});
       setLastEliminatedPlayerId(
         room.lastEliminatedPlayerId ?? ""
@@ -403,6 +418,7 @@ export default function GamePage() {
 
     await update(ref(db, `rooms/${roomCode}`), {
       phase: next,
+      phaseStartedAt: Date.now(),
       nextPhaseRequests: null,
       ...(next === "vote"
         ? {
@@ -513,6 +529,7 @@ export default function GamePage() {
   const finishMorning = async () => {
     await update(ref(db, `rooms/${roomCode}`), {
       phase: "discussion",
+      phaseStartedAt: Date.now(),
       nextPhaseRequests: null,
     });
   };
@@ -555,6 +572,7 @@ export default function GamePage() {
     const updates: Record<string, unknown> = {
       [`rooms/${roomCode}/status`]: "waiting",
       [`rooms/${roomCode}/phase`]: null,
+      [`rooms/${roomCode}/phaseStartedAt`]: null,
       [`rooms/${roomCode}/day`]: 1,
       [`rooms/${roomCode}/votes`]: null,
       [`rooms/${roomCode}/voteStage`]: null,
@@ -742,6 +760,8 @@ export default function GamePage() {
             voteHistory={previousVoteHistory}
             voteStage={voteStage}
             runoffCandidates={runoffCandidates}
+            timerSeconds={timerSettings.discussionSeconds}
+            timerStartedAt={phaseStartedAt}
             canProceed
             onProceed={requestNextPhase}
             proceedApprovalText={nextPhaseApprovalText}
@@ -913,6 +933,8 @@ export default function GamePage() {
             partners={eveningPartners}
             chatId={me.chatId}
             roomName={eveningRoomName}
+            timerSeconds={timerSettings.eveningSeconds}
+            timerStartedAt={phaseStartedAt}
             onTimerFinish={finishEvening}
           />
         );
@@ -944,6 +966,8 @@ export default function GamePage() {
             }
             gnosiaAttackTargetId={gnosiaAttackTargetId}
             investigatedTargetIds={myInvestigatedTargetIds}
+            timerSeconds={timerSettings.nightSeconds}
+            timerStartedAt={phaseStartedAt}
             onSelectGnosiaAttackTarget={
               selectGnosiaAttackTarget
             }

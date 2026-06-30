@@ -127,6 +127,7 @@ export async function startNight(
     ref(db, `rooms/${roomCode}`),
     {
       phase: "night",
+      phaseStartedAt: Date.now(),
       nightActions: null,
       gnosiaAttackTargetId: null,
     }

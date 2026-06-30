@@ -387,6 +387,7 @@ export async function executeNight(
     ref(db, `rooms/${roomCode}`),
     {
       phase: gameEnded ? "result" : "morning",
+      phaseStartedAt: Date.now(),
       day: logDay,
     }
   );

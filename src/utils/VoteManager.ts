@@ -301,6 +301,7 @@ async function finishVote(
         voteStage === "normal"
           ? "discussion"
           : "vote",
+      [`rooms/${roomCode}/phaseStartedAt`]: Date.now(),
     });
 
     return;
@@ -415,6 +416,7 @@ async function finishExileDecisionVote(
           "コールドスリープ可否投票の結果、誰もコールドスリープしませんでした。",
       },
     [`rooms/${roomCode}/phase`]: "sleep",
+    [`rooms/${roomCode}/phaseStartedAt`]: Date.now(),
   };
 
   await update(ref(db), updates);
@@ -481,6 +483,7 @@ async function finishWithExiledPlayers(
     [`rooms/${roomCode}/phase`]: gameEnded
       ? "result"
       : "sleep",
+    [`rooms/${roomCode}/phaseStartedAt`]: Date.now(),
   };
 
   exiledPlayers.forEach((player) => {

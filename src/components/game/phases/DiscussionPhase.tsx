@@ -15,6 +15,7 @@ import {
   type RoleCounts,
 } from "@/lib/roles";
 import type { Player } from "@/types/player";
+import Timer from "../common/Timer";
 import VoteHistory from "../result/VoteHistory";
 
 type PlayerWithId = Player & {
@@ -48,6 +49,8 @@ type Props = {
   voteHistory: VoteHistoryDay[];
   voteStage?: string;
   runoffCandidates?: PlayerWithId[];
+  timerSeconds: number;
+  timerStartedAt?: number | null;
   canProceed?: boolean;
   onProceed?: () => Promise<void> | void;
   proceedApprovalText?: string;
@@ -64,6 +67,8 @@ export default function DiscussionPhase({
   voteHistory,
   voteStage = "normal",
   runoffCandidates = [],
+  timerSeconds,
+  timerStartedAt,
   canProceed = false,
   onProceed,
   proceedApprovalText = "",
@@ -167,6 +172,14 @@ export default function DiscussionPhase({
           <h2 className="text-4xl font-light tracking-[0.12em]">
             {day}日目
           </h2>
+        </div>
+
+        <div className="absolute left-[18rem] top-0 z-40">
+          <Timer
+            initialSeconds={timerSeconds}
+            startedAt={timerStartedAt}
+            isRunning
+          />
         </div>
 
         {canProceed && onProceed && (

@@ -25,6 +25,10 @@ type Props = {
 
   roomName?: string;
 
+  timerSeconds: number;
+
+  timerStartedAt?: number | null;
+
   onTimerFinish?: () => void;
 };
 
@@ -34,6 +38,8 @@ export default function EveningPhase({
   partners,
   chatId,
   roomName = "会話ルーム",
+  timerSeconds,
+  timerStartedAt,
   onTimerFinish,
 }: Props) {
   const [waiting, setWaiting] =
@@ -71,7 +77,8 @@ export default function EveningPhase({
 
       {/* タイマー */}
       <Timer
-        initialSeconds={120}
+        initialSeconds={timerSeconds}
+        startedAt={timerStartedAt}
         onFinish={finishEvening}
       />
       </div>

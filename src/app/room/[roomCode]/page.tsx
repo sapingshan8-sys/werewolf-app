@@ -17,6 +17,12 @@ import {
   clearPlayerSession,
   getPlayerSession,
 } from "@/lib/playerSession";
+import {
+  clampTimerSeconds,
+  defaultTimerSettings,
+  normalizeTimerSettings,
+  type TimerSettings,
+} from "@/lib/timerSettings";
 import type { Player } from "@/types/player";
 
 type PlayerWithId = Player & {
@@ -41,6 +47,24 @@ const singleToggleRoles = [
   "bug",
 ];
 
+const timerSettingFields: {
+  key: keyof TimerSettings;
+  label: string;
+}[] = [
+  {
+    key: "discussionSeconds",
+    label: "会議",
+  },
+  {
+    key: "eveningSeconds",
+    label: "自由時間",
+  },
+  {
+    key: "nightSeconds",
+    label: "空間転移中",
+  },
+];
+
 export default function RoomPage() {
   const params = useParams();
   const router = useRouter();
@@ -57,6 +81,8 @@ export default function RoomPage() {
       playerCount: 0,
       counts: getDefaultRoleCounts(0),
     }));
+  const [timerSettings, setTimerSettings] =
+    useState<TimerSettings>(defaultTimerSettings);
 
   useEffect(() => {
     // ルーム情報監視
@@ -68,6 +94,9 @@ export default function RoomPage() {
       if (!room) return;
 
       setHostId(room.hostId);
+      setTimerSettings(
+        normalizeTimerSettings(room.timerSettings)
+      );
 
       if (room.status === "playing") {
         router.push(`/game/${roomCode}`);
@@ -162,6 +191,18 @@ export default function RoomPage() {
       role,
       currentCount > 0 ? 0 : enabledCount
     );
+  };
+
+  const changeTimerMinutes = (
+    key: keyof TimerSettings,
+    minutes: number
+  ) => {
+    setTimerSettings((currentSettings) => ({
+      ...currentSettings,
+      [key]: clampTimerSeconds(
+        Math.round(minutes * 60)
+      ),
+    }));
   };
 
   // キャラクター選択
@@ -259,8 +300,10 @@ export default function RoomPage() {
       await update(ref(db, `rooms/${roomCode}`), {
         status: "playing",
         phase: "roleReveal",
+        phaseStartedAt: Date.now(),
         day: 1,
         roleCounts,
+        timerSettings,
         votes: null,
         voteStage: null,
         runoffCandidateIds: null,
@@ -445,6 +488,52 @@ export default function RoomPage() {
               エンジニア、ドクター、守護天使、AC主義者、バグは0人または1人にしてください。
             </p>
           )}
+        </div>
+      )}
+
+      {myPlayerId === hostId && (
+        <div className="mb-8 rounded-sm border border-white/50 bg-white/22 p-5 shadow-[0_0_36px_rgba(255,255,255,0.22)] backdrop-blur-sm">
+          <h2 className="mb-2 text-xl font-light tracking-[0.18em] text-[#174b84]">
+            時間設定
+          </h2>
+
+          <p className="mb-4 text-sm text-[#6f5d4c]/75">
+            各フェーズのタイマー時間を分単位で設定します。
+          </p>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {timerSettingFields.map((field) => (
+              <label
+                key={field.key}
+                className="rounded-sm border border-white/50 bg-white/20 p-3"
+              >
+                <span className="block font-semibold tracking-[0.08em] text-[#174b84]">
+                  {field.label}
+                </span>
+
+                <div className="mt-3 flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0.5}
+                    max={60}
+                    step={0.5}
+                    value={timerSettings[field.key] / 60}
+                    onChange={(event) =>
+                      changeTimerMinutes(
+                        field.key,
+                        Number(event.target.value)
+                      )
+                    }
+                    className="w-24 rounded-sm border border-[#1e5b8e]/35 bg-white/30 px-3 py-2 text-right text-[#6f5d4c] outline-none focus:border-[#174b84]"
+                  />
+
+                  <span className="text-sm tracking-[0.08em] text-[#6f5d4c]/80">
+                    分
+                  </span>
+                </div>
+              </label>
+            ))}
+          </div>
         </div>
       )}
 
